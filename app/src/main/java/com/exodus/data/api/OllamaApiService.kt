@@ -16,7 +16,7 @@ sealed class ApiResult<out T> {
     data class Error(val message: String) : ApiResult<Nothing>()
 }
 
-class OllamaApiService(private val baseUrl: String = "http://26.202.89.251:11434") {
+class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434") {
     
     fun sendMessage(request: ChatRequest): ApiResult<ChatResponse> {
         return try {
@@ -26,26 +26,41 @@ class OllamaApiService(private val baseUrl: String = "http://26.202.89.251:11434
             connection.requestMethod = "POST"
             connection.setRequestProperty("Content-Type", "application/json")
             connection.doOutput = true
+            connection.connectTimeout = 10000 // 10 seconds
+            connection.readTimeout = 30000 // 30 seconds
             
             // Convert request to JSON manually
             val requestJson = chatRequestToJson(request)
+            
+            // Log the request for debugging
+            android.util.Log.d("ExodusAI", "Sending request to: $url")
+            android.util.Log.d("ExodusAI", "Request JSON: $requestJson")
+            
             OutputStreamWriter(connection.outputStream).use { writer ->
                 writer.write(requestJson)
                 writer.flush()
             }
             
             val responseCode = connection.responseCode
+            android.util.Log.d("ExodusAI", "Response code: $responseCode")
+            
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val response = BufferedReader(InputStreamReader(connection.inputStream)).use { reader ->
                     reader.readText()
                 }
+                android.util.Log.d("ExodusAI", "Raw response: $response")
                 val chatResponse = parseChatResponse(response)
+                android.util.Log.d("ExodusAI", "Parsed response: ${chatResponse.message.content}")
                 ApiResult.Success(chatResponse)
             } else {
-                ApiResult.Error("HTTP $responseCode")
+                val errorMsg = "HTTP $responseCode"
+                android.util.Log.e("ExodusAI", "HTTP Error: $errorMsg")
+                ApiResult.Error(errorMsg)
             }
         } catch (e: Exception) {
-            ApiResult.Error("Failed to connect to Ollama: ${e.javaClass.simpleName} - ${e.message ?: "Network connection failed"}")
+            val errorMsg = "Failed to connect to Ollama: ${e.javaClass.simpleName} - ${e.message ?: "Network connection failed"}"
+            android.util.Log.e("ExodusAI", "Exception in sendMessage: $errorMsg", e)
+            ApiResult.Error(errorMsg)
         }
     }
     

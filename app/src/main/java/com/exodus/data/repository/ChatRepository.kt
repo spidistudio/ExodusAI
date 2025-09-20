@@ -62,6 +62,7 @@ class ChatRepository(
             when (val response = ollamaApiClient.sendMessage(request)) {
                 is ApiResult.Success -> {
                     val aiResponse = response.data.message.content
+                    android.util.Log.d("ExodusAI", "ChatRepository: AI response received: $aiResponse")
                     
                     // In real app, save to database here
                     // messageDao.insertMessage(userMessage)
@@ -70,6 +71,7 @@ class ChatRepository(
                     aiResponse
                 }
                 is ApiResult.Error -> {
+                    android.util.Log.e("ExodusAI", "ChatRepository: API error: ${response.message}")
                     // Provide a helpful fallback response when Ollama is not available
                     when {
                         response.message.contains("Failed to connect") || 

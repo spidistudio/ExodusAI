@@ -11,7 +11,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class OllamaApiClient(
-    private val baseUrl: String = "http://26.202.89.251:11434"  // PC network IP for phone access
+    private val baseUrl: String = "http://192.168.0.115:11434"  // Local WiFi IP for phone access
 ) {
     private val apiService = OllamaApiService(baseUrl)
     
