@@ -72,20 +72,39 @@ class ChatRepository(
                 is ApiResult.Error -> {
                     // Provide a helpful fallback response when Ollama is not available
                     when {
+                        response.message.contains("Failed to connect") || 
                         response.message.contains("Connection refused") || 
-                        response.message.contains("Unable to resolve host") -> {
-                            "I'm currently running in demo mode since Ollama server is not available. " +
-                            "Your message was: \"$message\". To get real AI responses, please start Ollama server on localhost:11434."
+                        response.message.contains("Unable to resolve host") ||
+                        response.message.contains("Network connection failed") -> {
+                            "🤖 **Demo Mode Active**\n\n" +
+                            "Hi! I received your message: \"$message\"\n\n" +
+                            "I'm currently running in demo mode because Ollama server is not available. " +
+                            "To get real AI responses:\n\n" +
+                            "1. Install Ollama from https://ollama.ai\n" +
+                            "2. Run: `ollama pull llama2`\n" +
+                            "3. Start server: `ollama serve`\n\n" +
+                            "For now, I can only echo your messages in demo mode! 😊"
                         }
-                        else -> "Error: ${response.message}"
+                        else -> {
+                            "🤖 **Demo Response**\n\n" +
+                            "Your message: \"$message\"\n\n" +
+                            "API Error: ${response.message}\n\n" +
+                            "To enable real AI responses, please install Ollama server."
+                        }
                     }
                 }
             }
         } catch (e: Exception) {
             // Provide demo response for testing
-            "Demo response: I received your message \"$message\". " +
-            "This is a test response since Ollama server is not running. " +
-            "To get real AI responses, please install and start Ollama with the llama2 model."
+            "🤖 **Demo Mode - Exception Caught**\n\n" +
+            "Your message: \"$message\"\n\n" +
+            "This is a test response since Ollama server is not running.\n\n" +
+            "Error details: ${e.javaClass.simpleName} - ${e.message ?: "Unknown error"}\n\n" +
+            "**To get real AI responses:**\n" +
+            "1. Install Ollama from https://ollama.ai\n" +
+            "2. Run: `ollama pull llama2`\n" +
+            "3. Start: `ollama serve`\n\n" +
+            "Your app will work perfectly once Ollama is set up! 🚀"
         }
     }
 

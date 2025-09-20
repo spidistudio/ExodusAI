@@ -16,7 +16,7 @@ sealed class ApiResult<out T> {
     data class Error(val message: String) : ApiResult<Nothing>()
 }
 
-class OllamaApiService(private val baseUrl: String = "http://localhost:11434") {
+class OllamaApiService(private val baseUrl: String = "http://26.202.89.251:11434") {
     
     fun sendMessage(request: ChatRequest): ApiResult<ChatResponse> {
         return try {
@@ -45,7 +45,7 @@ class OllamaApiService(private val baseUrl: String = "http://localhost:11434") {
                 ApiResult.Error("HTTP $responseCode")
             }
         } catch (e: Exception) {
-            ApiResult.Error(e.message ?: "Unknown error")
+            ApiResult.Error("Failed to connect to Ollama: ${e.javaClass.simpleName} - ${e.message ?: "Network connection failed"}")
         }
     }
     

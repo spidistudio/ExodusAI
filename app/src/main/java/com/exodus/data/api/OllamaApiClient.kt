@@ -11,7 +11,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class OllamaApiClient(
-    private val baseUrl: String = "http://localhost:11434"
+    private val baseUrl: String = "http://26.202.89.251:11434"  // Your PC's IP for mobile testing
 ) {
     private val apiService = OllamaApiService(baseUrl)
     
