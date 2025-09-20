@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Exodus</string>
+    <string name="model_selection">Select AI Model</string>
+    <string name="no_models_available">No models available</string>
+    <string name="update_models">Update Models</string>
+    <string name="clear_chat">Clear Chat</string>
+    <string name="send_message">Send Message</string>
+    <string name="type_message_hint">Type your message...</string>
+    <string name="loading_models">Loading models...</string>
+    <string name="connection_error">Connection error. Make sure Ollama is running.</string>
+    <string name="model_download_started">Model download started</string>
+    <string name="model_download_failed">Model download failed</string>
+</resources>

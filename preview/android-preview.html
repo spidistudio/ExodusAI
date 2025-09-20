@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExodusAI - Android App Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #121212;
+            color: #E0E0E0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #121212;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            background: #1E1E1E;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #E0E0E0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            color: #E0E0E0;
+            cursor: pointer;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: #333;
+        }
+
+        .model-selector {
+            background: #1E1E1E;
+            padding: 16px;
+            margin: 16px;
+            border-radius: 12px;
+            border: 1px solid #333;
+        }
+
+        .model-label {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #E0E0E0;
+        }
+
+        .dropdown {
+            width: 100%;
+            padding: 12px;
+            background: #2A2A2A;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #E0E0E0;
+            font-size: 14px;
+        }
+
+        .chat-area {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.user {
+            background: #1976D2;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.ai {
+            background: #388E3C;
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .input-area {
+            background: #1E1E1E;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            border-top: 1px solid #333;
+        }
+
+        .message-input {
+            flex: 1;
+            background: #2A2A2A;
+            border: 1px solid #444;
+            border-radius: 20px;
+            padding: 12px 16px;
+            color: #E0E0E0;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            max-height: 100px;
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            background: #6200EA;
+            border: none;
+            border-radius: 24px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .send-btn:hover {
+            background: #7C4DFF;
+        }
+
+        .send-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: #388E3C;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: typing 1.4s infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="screen">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="title">ExodusAI Chat</div>
+                <div class="action-buttons">
+                    <button class="icon-btn" onclick="clearChat()" title="Clear Chat">🗑️</button>
+                    <button class="icon-btn" onclick="refreshModels()" title="Update Models">🔄</button>
+                </div>
+            </div>
+
+            <!-- Model Selector -->
+            <div class="model-selector">
+                <div class="model-label">AI Model:</div>
+                <select class="dropdown" id="modelSelect">
+                    <option value="">Select a model</option>
+                    <option value="llama2">Llama 2 - 7B</option>
+                    <option value="codellama">Code Llama - 7B</option>
+                    <option value="mistral">Mistral - 7B</option>
+                </select>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area" id="chatArea">
+                <div class="message ai">
+                    <div>Hello! I'm your local AI assistant. Select a model above and start chatting!</div>
+                    <div class="timestamp">12:00</div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <textarea 
+                    class="message-input" 
+                    id="messageInput" 
+                    placeholder="Type your message..."
+                    rows="1"
+                    onkeydown="handleKeyDown(event)"
+                ></textarea>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatArea = document.getElementById('chatArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const modelSelect = document.getElementById('modelSelect');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Enable/disable send button based on input and model selection
+        function updateSendButton() {
+            const hasMessage = messageInput.value.trim().length > 0;
+            const hasModel = modelSelect.value !== '';
+            sendBtn.disabled = !(hasMessage && hasModel);
+        }
+
+        messageInput.addEventListener('input', updateSendButton);
+        modelSelect.addEventListener('change', updateSendButton);
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                if (!sendBtn.disabled) {
+                    sendMessage();
+                }
+            }
+        }
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || modelSelect.value === '') return;
+
+            // Add user message
+            addMessage(message, 'user');
+            messageInput.value = '';
+            updateSendButton();
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Simulate AI response
+            setTimeout(() => {
+                hideTypingIndicator();
+                const responses = [
+                    "That's an interesting question! Let me think about that...",
+                    "I understand what you're asking. Here's my perspective...",
+                    "Based on the information you've provided, I would suggest...",
+                    "That's a great point! Here's how I would approach this...",
+                    "I see what you mean. Let me break this down for you..."
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addMessage(randomResponse, 'ai');
+            }, 1500 + Math.random() * 1000);
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            });
+
+            messageDiv.innerHTML = `
+                <div>${text}</div>
+                <div class="timestamp">${timestamp}</div>
+            `;
+
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'block';
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function clearChat() {
+            const messages = chatArea.querySelectorAll('.message');
+            messages.forEach((msg, index) => {
+                if (index > 0) { // Keep the first welcome message
+                    msg.remove();
+                }
+            });
+        }
+
+        function refreshModels() {
+            // Simulate model refresh
+            const refreshBtn = document.querySelector('[title="Update Models"]');
+            refreshBtn.innerHTML = '⟳';
+            setTimeout(() => {
+                refreshBtn.innerHTML = '🔄';
+                addMessage('Models updated successfully!', 'ai');
+            }, 1000);
+        }
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+    </script>
+</body>
+</html>

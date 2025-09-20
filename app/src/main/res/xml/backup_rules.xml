@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Include chat history -->
+    <include domain="database" path="wikiai_database" />
+    <!-- Exclude temporary files -->
+    <exclude domain="file" path="temp" />
+</full-backup-content>
