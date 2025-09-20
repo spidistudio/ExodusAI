@@ -124,8 +124,8 @@ class ChatRepository(
                 is ApiResult.Error -> {
                     // Return default models if API fails
                     listOf(
-                        AIModel("codellama:13b-instruct", "CodeLlama 13B Instruct", "7.3 GB", true),
-                        AIModel("llama2", "Llama 2", "3.8 GB", true)
+                        AIModel("codellama-custom:latest", "CodeLlama Custom 13B", "3.6 GB", true),
+                        AIModel("codellama:latest", "CodeLlama Standard", "3.6 GB", true)
                     )
                 }
             }

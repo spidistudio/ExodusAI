@@ -43,7 +43,7 @@ fun ChatScreen(
     LaunchedEffect(Unit) {
         // Ensure we have a default model selected
         if (uiState.selectedModel == null) {
-            val defaultModel = AIModel("codellama:13b-instruct", "CodeLlama 13B Instruct", "7.3 GB", true)
+            val defaultModel = AIModel("codellama-custom:latest", "CodeLlama Custom 13B", "3.6 GB", true)
             viewModel.selectModel(defaultModel)
         }
     }
@@ -105,12 +105,12 @@ fun ChatScreen(
             ) {
                 Column {
                     Text(
-                        text = "AI Model: CodeLlama 13B Instruct",
+                        text = "AI Model: CodeLlama Custom 13B",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = "Specialized for coding tasks",
+                        text = "Your personal coding assistant",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
