@@ -21,3 +21,14 @@ data class ChatResponse(
     val eval_count: Int? = null,
     val eval_duration: Long? = null
 )
+
+data class ModelsResponse(
+    val models: List<ModelInfo>
+)
+
+data class ModelInfo(
+    val name: String,
+    val size: Long,
+    val digest: String,
+    val modified_at: String
+)

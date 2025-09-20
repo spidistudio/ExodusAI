@@ -25,7 +25,7 @@ abstract class ExodusDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     ExodusDatabase::class.java,
-                    "wikiai_database"
+                    "exodus_database"
                 ).build()
                 INSTANCE = instance
                 instance

@@ -1,7 +1,7 @@
 # ExodusAI Development Commands
 
 # Build debug APK
-build-debug() {
+function Build-Debug {
     Write-Host "Building ExodusAI Debug APK..." -ForegroundColor Green
     .\gradlew.bat assembleDebug
     if ($LASTEXITCODE -eq 0) {
@@ -13,7 +13,7 @@ build-debug() {
 }
 
 # Install on device/emulator
-install-app() {
+function Install-App {
     Write-Host "Installing ExodusAI on device..." -ForegroundColor Green
     .\gradlew.bat installDebug
     if ($LASTEXITCODE -eq 0) {
@@ -24,50 +24,48 @@ install-app() {
 }
 
 # Clean project
-clean-project() {
+function Clean-Project {
     Write-Host "Cleaning ExodusAI project..." -ForegroundColor Yellow
     .\gradlew.bat clean
     Write-Host "✅ Project cleaned!" -ForegroundColor Green
 }
 
 # Start emulator
-start-emulator() {
+function Start-Emulator {
     Write-Host "Starting Android Emulator..." -ForegroundColor Blue
     Start-Process "emulator" -ArgumentList "-avd", "ExodusAI_Test" -NoNewWindow
     Write-Host "✅ Emulator starting..." -ForegroundColor Green
 }
 
 # View logs
-view-logs() {
+function View-Logs {
     Write-Host "Viewing ExodusAI logs..." -ForegroundColor Cyan
     adb logcat | Select-String "ExodusAI"
 }
 
 # Open preview
-open-preview() {
+function Open-Preview {
     Write-Host "Opening ExodusAI preview..." -ForegroundColor Magenta
     Start-Process "preview\android-preview.html"
     Write-Host "✅ Preview opened!" -ForegroundColor Green
 }
 
 # Show available commands
-Show-Commands() {
-    Write-Host @"
-
-🚀 ExodusAI Development Commands:
-
-build-debug     - Build debug APK
-install-app     - Install app on device/emulator
-clean-project   - Clean the project
-start-emulator  - Start Android emulator
-view-logs       - View app logs
-open-preview    - Open web preview
-Show-Commands   - Show this help
-
-Usage: Just type the command name in PowerShell
-Example: build-debug
-
-"@ -ForegroundColor Yellow
+function Show-Commands {
+    Write-Host ""
+    Write-Host "🚀 ExodusAI Development Commands:" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Build-Debug     - Build debug APK" -ForegroundColor Cyan
+    Write-Host "Install-App     - Install app on device/emulator" -ForegroundColor Cyan
+    Write-Host "Clean-Project   - Clean the project" -ForegroundColor Cyan
+    Write-Host "Start-Emulator  - Start Android emulator" -ForegroundColor Cyan
+    Write-Host "View-Logs       - View app logs" -ForegroundColor Cyan
+    Write-Host "Open-Preview    - Open web preview" -ForegroundColor Cyan
+    Write-Host "Show-Commands   - Show this help" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Usage: Just type the command name in PowerShell" -ForegroundColor Green
+    Write-Host "Example: Build-Debug" -ForegroundColor Green
+    Write-Host ""
 }
 
 Write-Host "ExodusAI Development Environment Loaded! 🎉" -ForegroundColor Green

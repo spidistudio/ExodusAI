@@ -1,0 +1,35 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "java.configuration.detectJdksAtStart": false,
+        "java.import.gradle.enabled": true,
+        "java.import.gradle.wrapper.enabled": true,
+        "gradle.nestedProjects": true,
+        "android.home": "C:/Users/Milan/AppData/Local/Android/Sdk",
+        "android.adbPath": "C:/Users/Milan/AppData/Local/Android/Sdk/platform-tools/adb.exe",
+        "android.emulatorPath": "C:/Users/Milan/AppData/Local/Android/Sdk/emulator/emulator.exe",
+        "files.associations": {
+            "*.gradle": "groovy",
+            "*.kt": "kotlin"
+        },
+        "terminal.integrated.env.windows": {
+            "ANDROID_HOME": "C:/Users/Milan/AppData/Local/Android/Sdk",
+            "ANDROID_SDK_ROOT": "C:/Users/Milan/AppData/Local/Android/Sdk",
+            "PATH": "${env:PATH};C:/Users/Milan/AppData/Local/Android/Sdk/platform-tools;C:/Users/Milan/AppData/Local/Android/Sdk/emulator"
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "fwcd.kotlin",
+            "vscjava.vscode-gradle",
+            "vscjava.vscode-java-pack",
+            "adelphes.android-dev-ext",
+            "DiemasMichiels.emulate",
+            "ms-vscode.live-server"
+        ]
+    }
+}

@@ -1,15 +1,25 @@
 package com.exodus.di
 
 import android.content.Context
-import com.exodus.data.api.OllamaApiService
+import com.exodus.data.api.OllamaApiClient
 import com.exodus.data.database.MessageDao
 import com.exodus.data.database.ExodusDatabase
 import com.exodus.data.repository.ChatRepository
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
+@Module
+@InstallIn(SingletonComponent::class)
 object AppModule {
 
-    fun provideOllamaApiService(): OllamaApiService {
-        return OllamaApiService("http://localhost:11434")
+    @Provides
+    @Singleton
+    fun provideOllamaApiClient(): OllamaApiClient {
+        return OllamaApiClient("http://localhost:11434")
     }
 
     fun provideDatabase(context: Context): ExodusDatabase {
@@ -20,10 +30,12 @@ object AppModule {
         return database.messageDao()
     }
     
+    @Provides
+    @Singleton
     fun provideChatRepository(
-        ollamaApiService: OllamaApiService,
+        ollamaApiClient: OllamaApiClient,
         messageDao: MessageDao
     ): ChatRepository {
-        return ChatRepository(ollamaApiService, messageDao)
+        return ChatRepository(ollamaApiClient, messageDao)
     }
 }

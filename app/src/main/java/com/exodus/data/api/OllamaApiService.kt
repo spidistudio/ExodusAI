@@ -2,6 +2,8 @@ package com.exodus.data.api
 
 import com.exodus.data.model.ChatRequest
 import com.exodus.data.model.ChatResponse
+import com.exodus.data.model.ModelsResponse
+import com.exodus.data.model.ModelInfo
 import java.net.HttpURLConnection
 import java.net.URL
 import java.io.OutputStreamWriter
@@ -115,7 +117,7 @@ class OllamaApiService(private val baseUrl: String = "http://localhost:11434") {
         val done = jsonString.contains("\"done\":true")
         
         return ChatResponse(
-            message = com.wikiai.data.model.ChatMessage(role = role, content = content),
+            message = com.exodus.data.model.ChatMessage(role = role, content = content),
             done = done
         )
     }
@@ -129,7 +131,7 @@ class OllamaApiService(private val baseUrl: String = "http://localhost:11434") {
         if (modelsStart > 10 && modelsEnd > modelsStart) {
             val modelsSection = jsonString.substring(modelsStart, modelsEnd)
             // This is a simplified parser - in real implementation you'd use proper JSON parsing
-            models.add(ModelInfo("llama2", 3825819519L, "sample-digest"))
+            models.add(ModelInfo("llama2", 3825819519L, "sample-digest", "2024-01-01T00:00:00Z"))
         }
         
         return ModelsResponse(models)
@@ -148,20 +150,3 @@ class OllamaApiService(private val baseUrl: String = "http://localhost:11434") {
         return text.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
     }
 }
-
-// Data classes for API responses
-data class ModelsResponse(
-    val models: List<ModelInfo>
-)
-
-data class ModelInfo(
-    val name: String,
-    val size: Long,
-    val digest: String,
-    val details: ModelDetails? = null
-)
-
-data class ModelDetails(
-    val parameter_size: String? = null,
-    val quantization_level: String? = null
-)

@@ -2,8 +2,8 @@ package com.exodus.data.repository
 
 import com.exodus.data.api.OllamaApiClient
 import com.exodus.data.api.ApiResult
-import com.exodus.data.api.ChatMessage
-import com.exodus.data.api.ChatRequest
+import com.exodus.data.model.ChatMessage
+import com.exodus.data.model.ChatRequest
 import com.exodus.data.database.MessageDao
 import com.exodus.data.model.AIModel
 import com.exodus.data.model.Message
@@ -70,11 +70,22 @@ class ChatRepository(
                     aiResponse
                 }
                 is ApiResult.Error -> {
-                    "Error: ${response.exception.message}"
+                    // Provide a helpful fallback response when Ollama is not available
+                    when {
+                        response.message.contains("Connection refused") || 
+                        response.message.contains("Unable to resolve host") -> {
+                            "I'm currently running in demo mode since Ollama server is not available. " +
+                            "Your message was: \"$message\". To get real AI responses, please start Ollama server on localhost:11434."
+                        }
+                        else -> "Error: ${response.message}"
+                    }
                 }
             }
         } catch (e: Exception) {
-            "Error: ${e.message}"
+            // Provide demo response for testing
+            "Demo response: I received your message \"$message\". " +
+            "This is a test response since Ollama server is not running. " +
+            "To get real AI responses, please install and start Ollama with the llama2 model."
         }
     }
 
@@ -115,7 +126,7 @@ class ChatRepository(
                     "Model download started"
                 }
                 is ApiResult.Error -> {
-                    "Failed to download model: ${response.exception.message}"
+                    "Failed to download model: ${response.message}"
                 }
             }
         } catch (e: Exception) {

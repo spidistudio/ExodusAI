@@ -1,5 +1,6 @@
 package com.exodus.ui.chat
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,11 +8,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,13 +33,20 @@ import java.util.*
 fun ChatScreen(
     viewModel: ChatViewModel
 ) {
-    val uiState = viewModel.uiState
-    val messages = viewModel.messages
-    val availableModels = viewModel.availableModels
+    val uiState by viewModel.uiState.collectAsState()
+    val messages by viewModel.messages.collectAsState()
     
     var messageText by remember { mutableStateOf("") }
-    var isDropdownExpanded by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
+    
+    // Set default model on first launch
+    LaunchedEffect(Unit) {
+        // Ensure we have a default model selected
+        if (uiState.selectedModel == null) {
+            val defaultModel = AIModel("llama2", "Llama 2", "3.8 GB", true)
+            viewModel.selectModel(defaultModel)
+        }
+    }
     
     // Auto-scroll to bottom when new messages arrive
     LaunchedEffect(messages.size) {
@@ -77,7 +87,7 @@ fun ChatScreen(
             )
         )
 
-        // Model Selection Dropdown
+        // Simple Model Indicator (replacing dropdown)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -86,86 +96,31 @@ fun ChatScreen(
                 containerColor = MaterialTheme.colorScheme.surface
             )
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "AI Model:",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                ExposedDropdownMenuBox(
-                    expanded = isDropdownExpanded,
-                    onExpandedChange = { isDropdownExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        value = uiState.selectedModel?.displayName ?: "Select a model",
-                        onValueChange = {},
-                        readOnly = true,
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(),
-                        colors = OutlinedTextFieldDefaults.colors()
+                Column {
+                    Text(
+                        text = "AI Model: Llama 2",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
                     )
-                    
-                    ExposedDropdownMenu(
-                        expanded = isDropdownExpanded,
-                        onDismissRequest = { isDropdownExpanded = false }
-                    ) {
-                        if (uiState.isLoadingModels) {
-                            DropdownMenuItem(
-                                text = {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(16.dp),
-                                            strokeWidth = 2.dp
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Loading models...")
-                                    }
-                                },
-                                onClick = {}
-                            )
-                        } else {
-                            availableModels.forEach { model ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text(
-                                                text = model.displayName,
-                                                fontWeight = FontWeight.Medium
-                                            )
-                                            if (model.size.isNotEmpty()) {
-                                                Text(
-                                                    text = model.size,
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                )
-                                            }
-                                        }
-                                    },
-                                    onClick = {
-                                        viewModel.selectModel(model)
-                                        isDropdownExpanded = false
-                                    }
-                                )
-                            }
-                            
-                            if (availableModels.isEmpty()) {
-                                DropdownMenuItem(
-                                    text = { Text("No models available") },
-                                    onClick = {}
-                                )
-                            }
-                        }
-                    }
+                    Text(
+                        text = "Ready for chat",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
+                
+                Icon(
+                    Icons.Default.CheckCircle,
+                    contentDescription = "Model Ready",
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
         }
 
@@ -246,7 +201,7 @@ fun ChatScreen(
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
                     Icon(
-                        Icons.Default.Send,
+                        Icons.AutoMirrored.Filled.Send,
                         contentDescription = "Send Message"
                     )
                 }
