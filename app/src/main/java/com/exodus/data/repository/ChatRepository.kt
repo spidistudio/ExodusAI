@@ -81,9 +81,9 @@ class ChatRepository(
                             "I'm currently running in demo mode because Ollama server is not available. " +
                             "To get real AI responses:\n\n" +
                             "1. Install Ollama from https://ollama.ai\n" +
-                            "2. Run: `ollama pull llama2`\n" +
+                            "2. Run: `ollama pull codellama:13b-instruct`\n" +
                             "3. Start server: `ollama serve`\n\n" +
-                            "For now, I can only echo your messages in demo mode! 😊"
+                            "For now, I can only echo your messages in demo mode! CodeLlama 13B is perfect for coding tasks! �"
                         }
                         else -> {
                             "🤖 **Demo Response**\n\n" +
@@ -102,9 +102,9 @@ class ChatRepository(
             "Error details: ${e.javaClass.simpleName} - ${e.message ?: "Unknown error"}\n\n" +
             "**To get real AI responses:**\n" +
             "1. Install Ollama from https://ollama.ai\n" +
-            "2. Run: `ollama pull llama2`\n" +
+            "2. Run: `ollama pull codellama:13b-instruct`\n" +
             "3. Start: `ollama serve`\n\n" +
-            "Your app will work perfectly once Ollama is set up! 🚀"
+            "Your CodeLlama 13B model will provide excellent coding assistance! 🚀"
         }
     }
 
@@ -124,16 +124,16 @@ class ChatRepository(
                 is ApiResult.Error -> {
                     // Return default models if API fails
                     listOf(
-                        AIModel("llama2", "Llama 2", "3.8 GB", true),
-                        AIModel("codellama", "Code Llama", "3.8 GB", true)
+                        AIModel("codellama:13b-instruct", "CodeLlama 13B Instruct", "7.3 GB", true),
+                        AIModel("llama2", "Llama 2", "3.8 GB", true)
                     )
                 }
             }
         } catch (e: Exception) {
             // Return default models if error
             listOf(
-                AIModel("llama2", "Llama 2", "3.8 GB", true),
-                AIModel("codellama", "Code Llama", "3.8 GB", true)
+                AIModel("codellama:13b-instruct", "CodeLlama 13B Instruct", "7.3 GB", true),
+                AIModel("llama2", "Llama 2", "3.8 GB", true)
             )
         }
     }
