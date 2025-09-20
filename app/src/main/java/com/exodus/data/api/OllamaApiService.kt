@@ -16,7 +16,7 @@ sealed class ApiResult<out T> {
     data class Error(val message: String) : ApiResult<Nothing>()
 }
 
-class OllamaApiService(private val baseUrl: String = "http://127.0.0.1:11434") {
+class OllamaApiService(private val baseUrl: String = "http://26.202.89.251:11434") {
     
     fun sendMessage(request: ChatRequest): ApiResult<ChatResponse> {
         return try {
