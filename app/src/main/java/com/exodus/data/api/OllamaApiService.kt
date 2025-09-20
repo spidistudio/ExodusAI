@@ -107,19 +107,29 @@ class OllamaApiService(private val baseUrl: String = "http://26.202.89.251:11434
     }
     
     private fun parseChatResponse(jsonString: String): ChatResponse {
-        // Simple JSON parsing without external libraries
-        val messageStart = jsonString.indexOf("\"message\":{") + 11
-        val messageEnd = jsonString.indexOf("}", messageStart)
-        val messageJson = jsonString.substring(messageStart, messageEnd)
-        
-        val role = extractJsonValue(messageJson, "role")
-        val content = extractJsonValue(messageJson, "content")
-        val done = jsonString.contains("\"done\":true")
-        
-        return ChatResponse(
-            message = com.exodus.data.model.ChatMessage(role = role, content = content),
-            done = done
-        )
+        // Parse Ollama chat response format
+        try {
+            val role = extractJsonValue(jsonString, "role")
+            val content = extractJsonValue(jsonString, "content")
+            val done = jsonString.contains("\"done\":true")
+            
+            return ChatResponse(
+                message = com.exodus.data.model.ChatMessage(
+                    role = if (role.isNotEmpty()) role else "assistant", 
+                    content = if (content.isNotEmpty()) content else "Error parsing response"
+                ),
+                done = done
+            )
+        } catch (e: Exception) {
+            // Fallback parsing for any format issues
+            return ChatResponse(
+                message = com.exodus.data.model.ChatMessage(
+                    role = "assistant", 
+                    content = "Failed to parse response: ${e.message}"
+                ),
+                done = true
+            )
+        }
     }
     
     private fun parseModelsResponse(jsonString: String): ModelsResponse {
@@ -138,12 +148,28 @@ class OllamaApiService(private val baseUrl: String = "http://26.202.89.251:11434
     }
     
     private fun extractJsonValue(json: String, key: String): String {
-        val keyPattern = "\"$key\":\""
-        val start = json.indexOf(keyPattern) + keyPattern.length
-        val end = json.indexOf("\"", start)
-        return if (start > keyPattern.length - 1 && end > start) {
-            json.substring(start, end)
-        } else ""
+        // Handle nested message structure in Ollama response
+        return when (key) {
+            "role" -> {
+                val messagePattern = "\"message\":\\s*\\{[^}]*\"role\":\\s*\"([^\"]*)\""
+                val regex = Regex(messagePattern)
+                regex.find(json)?.groupValues?.get(1) ?: ""
+            }
+            "content" -> {
+                val messagePattern = "\"message\":\\s*\\{[^}]*\"content\":\\s*\"([^\"]*)\""
+                val regex = Regex(messagePattern, RegexOption.DOT_MATCHES_ALL)
+                val match = regex.find(json)
+                if (match != null) {
+                    // Unescape JSON content
+                    match.groupValues[1].replace("\\n", "\n").replace("\\\"", "\"")
+                } else ""
+            }
+            else -> {
+                val keyPattern = "\"$key\":\\s*\"([^\"]*)\""
+                val regex = Regex(keyPattern)
+                regex.find(json)?.groupValues?.get(1) ?: ""
+            }
+        }
     }
     
     private fun escapeJson(text: String): String {
