@@ -87,14 +87,13 @@ class ChatRepository(
                         response.message.contains("model") && response.message.contains("not found") -> {
                             "🤖 **Model Not Found**\n\n" +
                             "The model '$modelName' is not available on your Ollama server.\n\n" +
-                            "**Available models on your server:**\n" +
-                            "• codellama:latest\n" +
-                            "• codellama-custom:latest\n\n" +
+                            "**Available model on your server:**\n" +
+                            "• llama3.2:latest (recommended - most recent knowledge)\n\n" +
                             "**To install more models:**\n" +
-                            "1. `ollama pull llama2` - Install Llama 2\n" +
-                            "2. `ollama pull codellama:13b-instruct` - Install CodeLlama 13B\n" +
+                            "1. `ollama pull llama3.1` - Install Llama 3.1\n" +
+                            "2. `ollama pull codellama` - Install CodeLlama for coding\n" +
                             "3. `ollama list` - See all installed models\n\n" +
-                            "Please select an available model from the dropdown above."
+                            "Please select Llama 3.2 from the dropdown above."
                         }
                         response.message.contains("Failed to connect") || 
                         response.message.contains("Connection refused") || 
@@ -147,19 +146,17 @@ class ChatRepository(
                 }
                 is ApiResult.Error -> {
                     AppLogger.w("ChatRepo", "⚠️ API failed to fetch models, using fallback list")
-                    // Return models that we know exist on your server
+                    // Return the model that exists on your server
                     listOf(
-                        AIModel("codellama:latest", "CodeLlama Latest", "3.8 GB", true),
-                        AIModel("codellama-custom:latest", "CodeLlama Custom", "3.8 GB", true)
+                        AIModel("llama3.2:latest", "Llama 3.2 Latest", "2.0 GB", true)
                     )
                 }
             }
         } catch (e: Exception) {
             AppLogger.e("ChatRepo", "❌ Exception getting models: ${e.message}", e)
-            // Return models that we know exist on your server
+            // Return the model that exists on your server
             listOf(
-                AIModel("codellama:latest", "CodeLlama Latest", "3.8 GB", true),
-                AIModel("codellama-custom:latest", "CodeLlama Custom", "3.8 GB", true)
+                AIModel("llama3.2:latest", "Llama 3.2 Latest", "2.0 GB", true)
             )
         }
     }

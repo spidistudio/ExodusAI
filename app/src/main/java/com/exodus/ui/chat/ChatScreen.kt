@@ -44,7 +44,7 @@ fun ChatScreen(
     LaunchedEffect(Unit) {
         // Ensure we have a default model selected
         if (uiState.selectedModel == null) {
-            val defaultModel = AIModel("codellama:latest", "CodeLlama Latest", "3.8 GB", true)
+            val defaultModel = AIModel("llama3.2:latest", "Llama 3.2 Latest", "2.0 GB", true)
             viewModel.selectModel(defaultModel)
         }
     }
