@@ -9,8 +9,8 @@ import kotlinx.coroutines.launch
 
 data class SettingsUiState(
     val isDarkMode: Boolean = true,
-    val appVersion: String = "1.18",
-    val buildNumber: String = "118"
+    val appVersion: String = "1.19",
+    val buildNumber: String = "119"
 )
 
 class SettingsViewModel : ViewModel() {

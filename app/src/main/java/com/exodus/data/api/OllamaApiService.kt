@@ -160,10 +160,19 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
     
     // JSON parsing helpers using simple string manipulation
     private fun chatRequestToJson(request: ChatRequest): String {
+        AppLogger.d("OllamaAPI", "🔨 Building JSON for ${request.messages.size} messages")
+        
         val messagesJson = request.messages.joinToString(",") { message ->
-            """{"role":"${message.role}","content":"${escapeJson(message.content)}"}"""
+            AppLogger.d("OllamaAPI", "📝 Message role: ${message.role}, content preview: ${message.content.take(50)}...")
+            val escapedContent = escapeJson(message.content)
+            AppLogger.d("OllamaAPI", "🔧 Escaped content preview: ${escapedContent.take(50)}...")
+            """{"role":"${message.role}","content":"${escapedContent}"}"""
         }
-        return """{"model":"${request.model}","stream":${request.stream},"messages":[$messagesJson]}"""
+        
+        val fullJson = """{"model":"${request.model}","stream":${request.stream},"messages":[$messagesJson]}"""
+        AppLogger.d("OllamaAPI", "📄 Complete JSON preview: ${fullJson.take(200)}...")
+        
+        return fullJson
     }
     
     private fun parseChatResponse(jsonString: String): ChatResponse {
@@ -289,13 +298,52 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
                 regex.find(json)?.groupValues?.get(1) ?: ""
             }
             "content" -> {
-                val messagePattern = "\"message\":\\s*\\{[^}]*\"content\":\\s*\"([^\"]*)\""
-                val regex = Regex(messagePattern, RegexOption.DOT_MATCHES_ALL)
-                val match = regex.find(json)
+                // More robust content extraction that handles escaped quotes
+                val messagePattern = "\"message\":\\s*\\{.*?\"content\":\\s*\"(.*?)\""
+                val regex = Regex(messagePattern, setOf(RegexOption.DOT_MATCHES_ALL))
+                
+                var match = regex.find(json)
                 if (match != null) {
+                    var content = match.groupValues[1]
+                    
+                    // Handle case where content might contain escaped quotes - we need to find the actual end
+                    var searchStart = match.range.last + 1
+                    
+                    // If the simple match fails due to internal quotes, use character-by-character parsing
+                    if (content.endsWith("\\") || searchStart < json.length) {
+                        val contentStart = json.indexOf("\"content\":\"") + 11
+                        if (contentStart > 10) {
+                            var i = contentStart
+                            val contentBuilder = StringBuilder()
+                            var escaped = false
+                            
+                            while (i < json.length) {
+                                val char = json[i]
+                                when {
+                                    escaped -> {
+                                        contentBuilder.append(char)
+                                        escaped = false
+                                    }
+                                    char == '\\' -> {
+                                        contentBuilder.append(char)
+                                        escaped = true
+                                    }
+                                    char == '"' && !escaped -> break
+                                    else -> contentBuilder.append(char)
+                                }
+                                i++
+                            }
+                            content = contentBuilder.toString()
+                        }
+                    }
+                    
                     // Unescape JSON content
-                    match.groupValues[1].replace("\\n", "\n").replace("\\\"", "\"")
-                } else ""
+                    AppLogger.d("OllamaAPI", "🔍 Extracted content length: ${content.length} chars")
+                    content.replace("\\n", "\n").replace("\\\"", "\"").replace("\\\\", "\\")
+                } else {
+                    AppLogger.w("OllamaAPI", "⚠️ Failed to extract content from response")
+                    ""
+                }
             }
             else -> {
                 val keyPattern = "\"$key\":\\s*\"([^\"]*)\""
@@ -306,6 +354,12 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
     }
     
     private fun escapeJson(text: String): String {
-        return text.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r")
+        AppLogger.d("OllamaAPI", "🔧 Escaping JSON text: ${text.take(50)}...")
+        return text
+            .replace("\\", "\\\\")  // Escape backslashes first
+            .replace("\"", "\\\"")  // Escape quotes
+            .replace("\n", "\\n")   // Escape newlines
+            .replace("\r", "\\r")   // Escape carriage returns
+            .replace("\t", "\\t")   // Escape tabs
     }
 }
