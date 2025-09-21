@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -85,7 +84,7 @@ fun ChatScreen(
                 }
                 IconButton(onClick = { viewModel.loadAvailableModels() }) {
                     Icon(
-                        Icons.Default.Refresh,
+                        Icons.Default.Settings,
                         contentDescription = "Update Models"
                     )
                 }
