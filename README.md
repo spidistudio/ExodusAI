@@ -4,7 +4,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.22-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.23-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -28,7 +28,28 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 
 ## 🆕 What's New in v1.21
 
-## 🔥 Latest Features (v1.22)
+## 🔥 Latest Features (v1.23)
+
+### 🔄 Automatic Update System
+- **GitHub Integration** - Checks for new releases automatically from GitHub API
+- **Smart Version Detection** - Compares current app version with latest releases
+- **One-Click Updates** - Direct download links to latest APK files
+- **Update Notifications** - Visual indicators when new versions are available
+
+### ⚙️ Enhanced Settings
+- **"Check for Updates" Button** - Manual update checking with loading states
+- **Update Status Display** - Shows last check time and current update status
+- **Version Information** - Clear display of current app version and build number
+- **Update Management** - Easy update installation with download guidance
+
+### 🔧 Technical Improvements
+- **HTTP API Client** - Direct GitHub API integration without Retrofit dependencies
+- **JSON Parsing** - Efficient release data processing
+- **Error Handling** - Robust network error management and user feedback
+- **Background Processing** - Non-blocking update checks on background threads
+
+*Previous versions:*
+### v1.22 - Markdown Support & UI Polish
 
 ### 📝 Markdown Support & Text Formatting
 - **Bold text rendering** - AI responses now properly render **bold text** using markdown syntax
