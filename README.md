@@ -42,8 +42,6 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
 - 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
 
-## 🆕 What's New in v1.21
-
 ## 🔥 Latest Features (v1.25)
 
 ### �️ AI Vision Support
