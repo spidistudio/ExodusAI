@@ -32,9 +32,12 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
             // Convert request to JSON manually
             val requestJson = chatRequestToJson(request)
             
-            // Log the request for debugging
-            android.util.Log.d("ExodusAI", "Sending request to: $url")
+            // Log the exact URL and IP being used
+            android.util.Log.d("ExodusAI", "=== DEBUGGING CONNECTION ===")
+            android.util.Log.d("ExodusAI", "Base URL: $baseUrl")
+            android.util.Log.d("ExodusAI", "Full URL: $url")
             android.util.Log.d("ExodusAI", "Request JSON: $requestJson")
+            android.util.Log.d("ExodusAI", "=== STARTING CONNECTION ===")
             
             OutputStreamWriter(connection.outputStream).use { writer ->
                 writer.write(requestJson)
@@ -59,7 +62,9 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
             }
         } catch (e: Exception) {
             val errorMsg = "Failed to connect to Ollama: ${e.javaClass.simpleName} - ${e.message ?: "Network connection failed"}"
-            android.util.Log.e("ExodusAI", "Exception in sendMessage: $errorMsg", e)
+            android.util.Log.e("ExodusAI", "=== CONNECTION FAILED ===")
+            android.util.Log.e("ExodusAI", "Exception: $errorMsg", e)
+            android.util.Log.e("ExodusAI", "Base URL was: $baseUrl")
             ApiResult.Error(errorMsg)
         }
     }
