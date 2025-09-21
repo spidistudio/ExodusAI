@@ -19,7 +19,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideOllamaApiClient(): OllamaApiClient {
-        return OllamaApiClient("http://localhost:11434")
+        return OllamaApiClient("http://192.168.0.115:11434")
     }
 
     fun provideDatabase(context: Context): ExodusDatabase {

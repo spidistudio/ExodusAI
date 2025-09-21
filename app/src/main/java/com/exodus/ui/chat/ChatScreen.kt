@@ -82,12 +82,6 @@ fun ChatScreen(
                         contentDescription = "Clear Chat"
                     )
                 }
-                IconButton(onClick = { viewModel.loadAvailableModels() }) {
-                    Icon(
-                        Icons.Default.Settings,
-                        contentDescription = "Update Models"
-                    )
-                }
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.surface
