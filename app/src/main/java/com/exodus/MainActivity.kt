@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import com.exodus.data.api.OllamaApiClient
 import com.exodus.data.database.MessageDaoImpl
 import com.exodus.data.repository.ChatRepository
+import com.exodus.data.repository.UpdateRepository
 import com.exodus.ui.chat.ChatScreen
 import com.exodus.ui.chat.ChatViewModel
 import com.exodus.ui.screens.SettingsScreen
@@ -28,7 +29,8 @@ class MainActivity : ComponentActivity() {
         val messageDao = MessageDaoImpl() // Placeholder implementation
         val chatRepository = ChatRepository(ollamaApiClient, messageDao)
         val chatViewModel = ChatViewModel(chatRepository)
-        val settingsViewModel = SettingsViewModel()
+        val updateRepository = UpdateRepository(this)
+        val settingsViewModel = SettingsViewModel(updateRepository)
         
         setContent {
             var currentScreen by remember { mutableStateOf("chat") }
