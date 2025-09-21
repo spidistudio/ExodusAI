@@ -20,7 +20,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.25-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.26-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -42,14 +42,26 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
 - 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
 
-## 🔥 Latest Features (v1.25)
+## 🔥 Latest Features (v1.26)
 
-### �️ AI Vision Support
-- **Image Analysis** - Send images directly to vision-enabled AI models for detailed analysis
-- **Base64 Encoding** - Automatic image encoding for seamless API integration
-- **Smart Resizing** - Optimized image processing (max 1024x1024) for efficient AI processing
-- **Memory Management** - Efficient bitmap handling with proper cleanup and optimization
-- **Vision Model Support** - Compatible with LLaVA, bakllava, moondream, and other Ollama vision models
+### 🔧 Enhanced Document Processing
+- **Fixed Word Document Recognition** - Word documents (.docx/.doc) now properly detected as documents instead of images
+- **Comprehensive MIME Type Support** - Full Microsoft Office document format detection and handling
+- **Improved User Guidance** - Better instructions for sharing document content with enhanced formatting
+- **Smart File Classification** - Documents route to DocumentProcessor, images to ImageEncoder for optimal processing
+- **Enhanced Debugging** - Detailed logging for attachment type detection and processing troubleshooting
+
+### 📄 Document Format Support
+- **Microsoft Word** - `.docx` and `.doc` files with proper MIME type detection
+- **Microsoft Excel** - `.xlsx` and `.xls` spreadsheet files with specialized guidance
+- **PDF Documents** - PDF file recognition with user guidance for content extraction
+- **Plain Text Files** - Full text extraction for `.txt`, `.md`, and `.log` files
+- **Legacy Office Formats** - Support for older Microsoft Office document types
+
+### 🛠️ Technical Improvements
+- **Enhanced AttachmentType Detection** - Comprehensive MIME type patterns for reliable file classification
+- **Improved Error Handling** - Better user feedback for unsupported document types
+- **Code Quality** - Clean separation between image and document processing pipelines
 
 ### 📎 Enhanced File Attachment System
 - **AI Image Processing** - Attachments are now sent to and processed by AI models
@@ -707,4 +719,4 @@ MIT License - You are free to:
 - Some features may behave differently on experimental builds
 - Report QPR2-specific issues on GitHub for rapid fixes
 
-**🚀 Ready for AI vision and advanced file attachments? [Download v1.25](https://github.com/spidistudio/ExodusAI/releases) and chat with images!**
+**🚀 Ready for enhanced document processing and improved file handling? [Download v1.26](https://github.com/spidistudio/ExodusAI/releases) and experience better document support!**

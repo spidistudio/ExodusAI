@@ -2,6 +2,24 @@
 
 All notable changes to ExodusAI will be documented in this file.
 
+## [1.26] - 2025-09-21
+
+### Fixed
+- 🔧 **Word Document Recognition** - Word documents (.docx/.doc) now properly detected as documents instead of images
+- **MIME Type Detection** - Enhanced detection for Microsoft Office document formats
+- **Attachment Processing** - Documents route to DocumentProcessor, images to ImageEncoder
+
+### Enhanced
+- **Document Format Support** - Comprehensive MIME type patterns for Office documents
+- **User Guidance** - Improved instructions for document content sharing with better formatting
+- **Debugging System** - Detailed logging for attachment type detection and processing
+- **Error Handling** - Better user feedback for unsupported document types
+
+### Technical
+- **AttachmentType.fromMimeType()** - Enhanced with comprehensive Office document patterns
+- **DocumentProcessor** - Improved Word document detection and guidance messages
+- **Code Architecture** - Clean separation between image and document processing pipelines
+
 ## [1.25] - 2025-09-21
 
 ### Added
