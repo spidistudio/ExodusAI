@@ -4,7 +4,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.19-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.20-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -26,7 +26,26 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
 - 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
 
-## 🆕 What's New in v1.19
+## 🆕 What's New in v1.20
+
+### 🚀 Model Upgrade & Knowledge Update
+- **Upgraded to Llama 3.2 Latest** - Much more recent knowledge (April 2024 vs September 2022)
+- **Removed old models** - Cleaned up CodeLlama custom model, freed 3.8 GB storage
+- **Streamlined setup** - Single optimized model configuration
+- **Better performance** - Smaller size (2.0 GB), faster responses, newer architecture
+
+### 📚 Knowledge Improvement
+- **1.5+ years newer knowledge** - From September 2022 to April 2024
+- **More accurate responses** - Recent events, technologies, and developments
+- **Current information** - No more "knowledge cutoff September 2022" responses
+
+### 🧹 Simplified Configuration
+- **Single model setup** - Only llama3.2:latest (no confusion with multiple models)
+- **Automatic defaults** - App automatically selects the best available model
+- **Reduced complexity** - Easier maintenance and updates
+
+*Previous versions:*
+### v1.19 - Response Processing & JSON Parsing Fixes
 
 ### 🔧 Response Processing & JSON Parsing Fixes
 - **Fixed response truncation** - AI responses are no longer cut off at quotes or special characters
