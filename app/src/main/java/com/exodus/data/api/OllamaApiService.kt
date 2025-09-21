@@ -4,6 +4,7 @@ import com.exodus.data.model.ChatRequest
 import com.exodus.data.model.ChatResponse
 import com.exodus.data.model.ModelsResponse
 import com.exodus.data.model.ModelInfo
+import com.exodus.utils.AppLogger
 import java.net.HttpURLConnection
 import java.net.URL
 import java.io.OutputStreamWriter
@@ -32,62 +33,95 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
             // Convert request to JSON manually
             val requestJson = chatRequestToJson(request)
             
-            // Log the exact URL and IP being used
-            android.util.Log.d("ExodusAI", "=== DEBUGGING CONNECTION ===")
-            android.util.Log.d("ExodusAI", "Base URL: $baseUrl")
-            android.util.Log.d("ExodusAI", "Full URL: $url")
-            android.util.Log.d("ExodusAI", "Request JSON: $requestJson")
-            android.util.Log.d("ExodusAI", "=== STARTING CONNECTION ===")
+            // Enhanced logging for debugging
+            AppLogger.network("OllamaAPI", "=== NETWORK CONNECTION ATTEMPT ===")
+            AppLogger.network("OllamaAPI", "Base URL: $baseUrl")
+            AppLogger.network("OllamaAPI", "Full URL: $url")
+            AppLogger.network("OllamaAPI", "Model: ${request.model}")
+            AppLogger.network("OllamaAPI", "Messages count: ${request.messages.size}")
+            AppLogger.network("OllamaAPI", "Request JSON length: ${requestJson.length} chars")
+            AppLogger.network("OllamaAPI", "Connect timeout: 10s, Read timeout: 30s")
+            AppLogger.network("OllamaAPI", "=== STARTING CONNECTION ===")
             
             OutputStreamWriter(connection.outputStream).use { writer ->
                 writer.write(requestJson)
                 writer.flush()
+                AppLogger.network("OllamaAPI", "✅ Request data sent successfully")
             }
             
             val responseCode = connection.responseCode
-            android.util.Log.d("ExodusAI", "Response code: $responseCode")
+            AppLogger.network("OllamaAPI", "📡 Response code: $responseCode")
             
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val response = BufferedReader(InputStreamReader(connection.inputStream)).use { reader ->
                     reader.readText()
                 }
-                android.util.Log.d("ExodusAI", "Raw response: $response")
+                AppLogger.network("OllamaAPI", "✅ Raw response received: ${response.length} chars")
+                AppLogger.d("OllamaAPI", "Response preview: ${response.take(200)}...")
+                
                 val chatResponse = parseChatResponse(response)
-                android.util.Log.d("ExodusAI", "Parsed response: ${chatResponse.message.content}")
+                AppLogger.network("OllamaAPI", "✅ Response parsed successfully")
+                AppLogger.i("OllamaAPI", "AI response: ${chatResponse.message.content.take(100)}...")
                 ApiResult.Success(chatResponse)
             } else {
                 val errorMsg = "HTTP $responseCode"
-                android.util.Log.e("ExodusAI", "HTTP Error: $errorMsg")
+                AppLogger.e("OllamaAPI", "❌ HTTP Error: $errorMsg")
+                
+                // Try to read error response
+                try {
+                    val errorResponse = BufferedReader(InputStreamReader(connection.errorStream)).use { reader ->
+                        reader.readText()
+                    }
+                    AppLogger.e("OllamaAPI", "Error response body: $errorResponse")
+                } catch (e: Exception) {
+                    AppLogger.w("OllamaAPI", "Could not read error response: ${e.message}")
+                }
+                
                 ApiResult.Error(errorMsg)
             }
         } catch (e: Exception) {
             val errorMsg = "Failed to connect to Ollama: ${e.javaClass.simpleName} - ${e.message ?: "Network connection failed"}"
-            android.util.Log.e("ExodusAI", "=== CONNECTION FAILED ===")
-            android.util.Log.e("ExodusAI", "Exception: $errorMsg", e)
-            android.util.Log.e("ExodusAI", "Base URL was: $baseUrl")
+            AppLogger.e("OllamaAPI", "=== CONNECTION FAILED ===", e)
+            AppLogger.e("OllamaAPI", "Exception type: ${e.javaClass.simpleName}")
+            AppLogger.e("OllamaAPI", "Exception message: ${e.message ?: "No message"}")
+            AppLogger.e("OllamaAPI", "Base URL was: $baseUrl")
+            AppLogger.e("OllamaAPI", "Stack trace: ${e.stackTraceToString().take(500)}...")
             ApiResult.Error(errorMsg)
         }
     }
     
     fun getAvailableModels(): ApiResult<ModelsResponse> {
         return try {
+            AppLogger.network("OllamaAPI", "🔍 Fetching available models from server")
             val url = URL("$baseUrl/api/tags")
             val connection = url.openConnection() as HttpURLConnection
             
             connection.requestMethod = "GET"
             connection.setRequestProperty("Accept", "application/json")
+            AppLogger.network("OllamaAPI", "GET request to: $url")
             
             val responseCode = connection.responseCode
+            AppLogger.network("OllamaAPI", "Models API response code: $responseCode")
+            
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val response = BufferedReader(InputStreamReader(connection.inputStream)).use { reader ->
                     reader.readText()
                 }
+                AppLogger.network("OllamaAPI", "✅ Models response received: ${response.length} chars")
+                AppLogger.d("OllamaAPI", "Models response preview: ${response.take(200)}...")
+                
                 val modelsResponse = parseModelsResponse(response)
+                AppLogger.i("OllamaAPI", "✅ Found ${modelsResponse.models.size} available models")
+                modelsResponse.models.forEach { model ->
+                    AppLogger.d("OllamaAPI", "Model: ${model.name} (${model.size} bytes)")
+                }
                 ApiResult.Success(modelsResponse)
             } else {
+                AppLogger.e("OllamaAPI", "❌ Models API error: HTTP $responseCode")
                 ApiResult.Error("HTTP $responseCode")
             }
         } catch (e: Exception) {
+            AppLogger.e("OllamaAPI", "❌ Failed to fetch models: ${e.javaClass.simpleName} - ${e.message}", e)
             ApiResult.Error(e.message ?: "Unknown error")
         }
     }

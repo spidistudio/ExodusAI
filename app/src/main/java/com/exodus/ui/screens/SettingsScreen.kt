@@ -17,6 +17,7 @@ import com.exodus.ui.viewmodel.SettingsViewModel
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
+    onDebugClick: () -> Unit = {},
     viewModel: SettingsViewModel = SettingsViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -175,6 +176,47 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                }
+            }
+            
+            // Debug Section
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Debug & Troubleshooting",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    
+                    OutlinedButton(
+                        onClick = onDebugClick,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text("📋")
+                            Column(
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(
+                                    "View Debug Logs",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    "See network activity and troubleshoot connection issues",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
             }

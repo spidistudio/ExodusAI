@@ -21,6 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ExodusAI"
         android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="false"
         android:preserveLegacyExternalStorage="false"
         tools:targetApi="36">

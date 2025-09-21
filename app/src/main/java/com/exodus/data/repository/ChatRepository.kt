@@ -7,6 +7,7 @@ import com.exodus.data.model.ChatRequest
 import com.exodus.data.database.MessageDao
 import com.exodus.data.model.AIModel
 import com.exodus.data.model.Message
+import com.exodus.utils.AppLogger
 import java.util.Date
 
 class ChatRepository(
@@ -34,6 +35,10 @@ class ChatRepository(
         conversationHistory: List<Message>
     ): String {
         return try {
+            AppLogger.i("ChatRepo", "💬 Sending message to model: $modelName")
+            AppLogger.d("ChatRepo", "Message length: ${message.length} chars")
+            AppLogger.d("ChatRepo", "Conversation history: ${conversationHistory.size} messages")
+            
             // Create user message
             val userMessage = Message(
                 content = message,
@@ -58,11 +63,14 @@ class ChatRepository(
                 model = modelName,
                 messages = chatMessages
             )
+            
+            AppLogger.network("ChatRepo", "🚀 Calling Ollama API with ${chatMessages.size} messages")
 
             when (val response = ollamaApiClient.sendMessage(request)) {
                 is ApiResult.Success -> {
                     val aiResponse = response.data.message.content
-                    android.util.Log.d("ExodusAI", "ChatRepository: AI response received: $aiResponse")
+                    AppLogger.i("ChatRepo", "✅ AI response received: ${aiResponse.length} chars")
+                    AppLogger.d("ChatRepo", "Response preview: ${aiResponse.take(100)}...")
                     
                     // In real app, save to database here
                     // messageDao.insertMessage(userMessage)
@@ -71,7 +79,9 @@ class ChatRepository(
                     aiResponse
                 }
                 is ApiResult.Error -> {
-                    android.util.Log.e("ExodusAI", "ChatRepository: API error: ${response.message}")
+                    AppLogger.e("ChatRepo", "❌ API error: ${response.message}")
+                    AppLogger.w("ChatRepo", "Falling back to demo mode")
+                    
                     // Provide a helpful fallback response when Ollama is not available
                     when {
                         response.message.contains("Failed to connect") || 

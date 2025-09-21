@@ -14,6 +14,7 @@ import com.exodus.data.repository.ChatRepository
 import com.exodus.ui.chat.ChatScreen
 import com.exodus.ui.chat.ChatViewModel
 import com.exodus.ui.screens.SettingsScreen
+import com.exodus.ui.screens.DebugLogsScreen
 import com.exodus.ui.theme.ExodusTheme
 import com.exodus.ui.viewmodel.SettingsViewModel
 
@@ -47,7 +48,13 @@ class MainActivity : ComponentActivity() {
                         "settings" -> {
                             SettingsScreen(
                                 viewModel = settingsViewModel,
-                                onBackClick = { currentScreen = "chat" }
+                                onBackClick = { currentScreen = "chat" },
+                                onDebugClick = { currentScreen = "debug" }
+                            )
+                        }
+                        "debug" -> {
+                            DebugLogsScreen(
+                                onBackClick = { currentScreen = "settings" }
                             )
                         }
                     }
