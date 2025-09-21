@@ -4,7 +4,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.20-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.21-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -26,7 +26,28 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
 - 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
 
-## 🆕 What's New in v1.20
+## 🆕 What's New in v1.21
+
+### 🎨 Enhanced UI with Purple Theming & Responsive Design
+- **Message bubble theming** - User messages in purple (#6200EA), AI messages in themed surfaces
+- **Complete dark/light theme support** - Auto-detects system preference with proper contrast
+- **Responsive mobile design** - Optimized for all screen sizes from small phones to tablets
+- **Modern message bubbles** - Enhanced shapes, spacing, and typography for better readability
+
+### 📱 Mobile Responsiveness
+- **Adaptive layout** - Message width and padding adjust based on screen size
+- **Enhanced input field** - Better spacing, elevation, and multi-line support (up to 4 lines)
+- **Improved accessibility** - Better text contrast and touch targets
+- **Universal compatibility** - Works beautifully on all Android device sizes
+
+### ✨ UI/UX Improvements
+- **Purple accent consistency** - Matches app theme across all interface elements
+- **Enhanced typography** - Better line height and text readability
+- **Modern card design** - Added elevation and rounded corners for depth
+- **Improved spacing** - Better visual hierarchy and breathing room
+
+*Previous versions:*
+### v1.20 - Model Upgrade & Knowledge Update
 
 ### 🚀 Model Upgrade & Knowledge Update
 - **Upgraded to Llama 3.2 Latest** - Much more recent knowledge (April 2024 vs September 2022)
