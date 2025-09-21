@@ -1,10 +1,23 @@
-# ExodusAI - Offline AI Chat Android App
+# ExodusAI - O## ✨ Features
+
+- 📎 **File Attachments** - Attach images and documents to your chat messages with preview support
+- 🌙 **Adaptive Theme Design** - Dark/Light theme with system preference detection
+- ⚙️ **Settings Screen** - Comprehensive settings with theme toggle and app info
+- 🔍 **Debug Logging System** - Real-time network monitoring and troubleshooting tools
+- 💬 **Chat Interface** - Intuitive messaging interface similar to popular chat apps
+- 🤖 **AI Model Selection** - Dropdown list to select from available downloaded AI models
+- 🔄 **Model Updates** - Easy way to check for and download new AI models
+- 💾 **Chat History** - Persistent storage of conversations with different models
+- 📱 **Offline Operation** - Works entirely offline with local AI models
+- 🚀 **Performance Optimized** - Built with modern Android architecture
+- 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
+- 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+t Android App
 
 [![Android](https://img.shields.io/badge/Android-API%2021+-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.23-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.24-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -28,7 +41,37 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 
 ## 🆕 What's New in v1.21
 
-## 🔥 Latest Features (v1.23)
+## 🔥 Latest Features (v1.24)
+
+### 📎 File Attachment System
+- **Multi-format Support** - Attach images (JPG, PNG, GIF, etc.) and documents (PDF, TXT, DOCX, etc.) to your chat messages
+- **Visual Preview** - Thumbnail previews for images and file icons for documents before sending
+- **Smart File Picker** - Native Android file picker integration with file type filtering
+- **Size Validation** - 10MB file size limit with proper validation and user feedback
+- **Attachment Management** - Add, preview, and remove attachments before sending messages
+- **Chat History Integration** - View attachment previews in conversation history
+
+### 🎨 Enhanced UI Components
+- **Attachment Preview Grid** - Beautiful grid layout for showing multiple attachments
+- **Coil Image Loading** - Efficient image loading and caching for attachment previews
+- **Material Design 3** - Consistent design language across all attachment components
+- **Responsive Layout** - Attachment UI adapts to different screen sizes and orientations
+
+### 🛠️ Technical Infrastructure
+- **Room Database Integration** - Type converters for storing attachment metadata in SQLite
+- **Gson Serialization** - Efficient JSON serialization for attachment data persistence
+- **URI Handling** - Proper Android content URI management for file access
+- **MIME Type Detection** - Automatic file type detection and categorization
+
+### 💬 Enhanced Chat Experience
+- **Combined Messages** - Send text messages with file attachments in a single request
+- **Attachment Metadata** - File names, sizes, and types displayed in chat history
+- **Demo Mode Support** - Attachment acknowledgment in offline demo responses
+- **Error Handling** - Graceful handling of file access errors and validation failures
+
+## 🔄 Previous Updates
+
+### v1.23 - Automatic Update System
 
 ### 🔄 Automatic Update System
 - **GitHub Integration** - Checks for new releases automatically from GitHub API

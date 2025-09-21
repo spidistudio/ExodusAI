@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.exodus.data.model.AIModel
+import com.exodus.data.model.Attachment
 import com.exodus.data.model.Message
 import com.exodus.data.repository.ChatRepository
 import java.util.Date
@@ -47,10 +48,10 @@ class ChatViewModel(
         }
     }
 
-    fun sendMessage(content: String) {
+    fun sendMessage(content: String, attachments: List<Attachment> = emptyList()) {
         val selectedModel = _uiState.value.selectedModel ?: return
 
-        if (content.isBlank()) return
+        if (content.isBlank() && attachments.isEmpty()) return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
@@ -64,7 +65,8 @@ class ChatViewModel(
                     content = content,
                     isFromUser = true,
                     timestamp = Date(),
-                    modelName = selectedModel.name
+                    modelName = selectedModel.name,
+                    attachments = attachments
                 )
                 
                 val currentMessages = _messages.value.toMutableList()
@@ -75,7 +77,8 @@ class ChatViewModel(
                 val response = chatRepository.sendMessage(
                     message = content,
                     modelName = selectedModel.name,
-                    conversationHistory = _messages.value
+                    conversationHistory = _messages.value,
+                    attachments = attachments
                 )
                 
                 // Create and add AI response

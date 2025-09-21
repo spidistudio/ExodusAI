@@ -11,5 +11,6 @@ data class Message(
     val content: String,
     val isFromUser: Boolean,
     val timestamp: Date,
-    val modelName: String = ""
+    val modelName: String = "",
+    val attachments: List<Attachment> = emptyList()
 )

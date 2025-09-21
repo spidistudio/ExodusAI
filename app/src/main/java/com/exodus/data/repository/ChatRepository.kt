@@ -2,6 +2,7 @@ package com.exodus.data.repository
 
 import com.exodus.data.api.OllamaApiClient
 import com.exodus.data.api.ApiResult
+import com.exodus.data.model.Attachment
 import com.exodus.data.model.ChatMessage
 import com.exodus.data.model.ChatRequest
 import com.exodus.data.database.MessageDao
@@ -32,19 +33,22 @@ class ChatRepository(
     suspend fun sendMessage(
         message: String,
         modelName: String,
-        conversationHistory: List<Message>
+        conversationHistory: List<Message>,
+        attachments: List<Attachment> = emptyList()
     ): String {
         return try {
             AppLogger.i("ChatRepo", "💬 Sending message to model: $modelName")
             AppLogger.d("ChatRepo", "Message length: ${message.length} chars")
             AppLogger.d("ChatRepo", "Conversation history: ${conversationHistory.size} messages")
+            AppLogger.d("ChatRepo", "Attachments: ${attachments.size} files")
             
             // Create user message
             val userMessage = Message(
                 content = message,
                 isFromUser = true,
                 timestamp = Date(),
-                modelName = modelName
+                modelName = modelName,
+                attachments = attachments
             )
             
             // Prepare chat history for API
@@ -83,6 +87,11 @@ class ChatRepository(
                     AppLogger.w("ChatRepo", "Falling back to demo mode")
                     
                     // Provide a helpful fallback response when Ollama is not available
+                    val attachmentText = if (attachments.isNotEmpty()) {
+                        "\n\n📎 **Attachments received (${attachments.size}):**\n" +
+                        attachments.joinToString("\n") { "• ${it.fileName} (${it.type})" }
+                    } else ""
+                    
                     when {
                         response.message.contains("model") && response.message.contains("not found") -> {
                             "🤖 **Model Not Found**\n\n" +
@@ -93,14 +102,14 @@ class ChatRepository(
                             "1. `ollama pull llama3.1` - Install Llama 3.1\n" +
                             "2. `ollama pull codellama` - Install CodeLlama for coding\n" +
                             "3. `ollama list` - See all installed models\n\n" +
-                            "Please select Llama 3.2 from the dropdown above."
+                            "Please select Llama 3.2 from the dropdown above.$attachmentText"
                         }
                         response.message.contains("Failed to connect") || 
                         response.message.contains("Connection refused") || 
                         response.message.contains("Unable to resolve host") ||
                         response.message.contains("Network connection failed") -> {
                             "🤖 **Demo Mode Active**\n\n" +
-                            "Hi! I received your message: \"$message\"\n\n" +
+                            "Hi! I received your message: \"$message\"$attachmentText\n\n" +
                             "I'm currently running in demo mode because Ollama server is not available. " +
                             "To get real AI responses:\n\n" +
                             "1. Install Ollama from https://ollama.ai\n" +
@@ -110,7 +119,7 @@ class ChatRepository(
                         }
                         else -> {
                             "🤖 **Demo Response**\n\n" +
-                            "Your message: \"$message\"\n\n" +
+                            "Your message: \"$message\"$attachmentText\n\n" +
                             "API Error: ${response.message}\n\n" +
                             "To enable real AI responses, please install Ollama server."
                         }
@@ -118,9 +127,14 @@ class ChatRepository(
                 }
             }
         } catch (e: Exception) {
+            val attachmentText = if (attachments.isNotEmpty()) {
+                "\n\n📎 **Attachments received (${attachments.size}):**\n" +
+                attachments.joinToString("\n") { "• ${it.fileName} (${it.type})" }
+            } else ""
+            
             // Provide demo response for testing
             "🤖 **Demo Mode - Exception Caught**\n\n" +
-            "Your message: \"$message\"\n\n" +
+            "Your message: \"$message\"$attachmentText\n\n" +
             "This is a test response since Ollama server is not running.\n\n" +
             "Error details: ${e.javaClass.simpleName} - ${e.message ?: "Unknown error"}\n\n" +
             "**To get real AI responses:**\n" +

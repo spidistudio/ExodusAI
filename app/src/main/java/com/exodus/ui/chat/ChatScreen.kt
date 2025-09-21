@@ -1,5 +1,8 @@
 package com.exodus.ui.chat
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -10,6 +13,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Settings
@@ -20,12 +24,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.exodus.data.model.AIModel
+import com.exodus.data.model.Attachment
 import com.exodus.data.model.Message
 import com.exodus.ui.theme.*
 import com.exodus.ui.components.MarkdownText
+import com.exodus.ui.components.AttachmentPreviewGrid
+import com.exodus.utils.AttachmentManager
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,13 +43,28 @@ fun ChatScreen(
     viewModel: ChatViewModel,
     onSettingsClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val attachmentManager = remember { AttachmentManager(context) }
+    
     val uiState by viewModel.uiState.collectAsState()
     val messages by viewModel.messages.collectAsState()
     val configuration = LocalConfiguration.current
-    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
     
     var messageText by remember { mutableStateOf("") }
+    var selectedAttachments by remember { mutableStateOf<List<Attachment>>(emptyList()) }
     val listState = rememberLazyListState()
+    
+    // File picker launcher
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { selectedUri ->
+            val attachment = attachmentManager.createAttachment(selectedUri)
+            if (attachment != null && attachmentManager.isValidAttachment(attachment)) {
+                selectedAttachments = selectedAttachments + attachment
+            }
+        }
+    }
     
     // Responsive dimensions based on screen size
     val screenWidth = configuration.screenWidthDp.dp
@@ -197,43 +220,72 @@ fun ChatScreen(
                 defaultElevation = 4.dp
             )
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.Bottom
+                    .padding(16.dp)
             ) {
-                OutlinedTextField(
-                    value = messageText,
-                    onValueChange = { messageText = it },
-                    placeholder = { 
-                        Text(
-                            "Type your message...",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        ) 
-                    },
-                    modifier = Modifier.weight(1f),
-                    maxLines = 4,
-                    enabled = uiState.selectedModel != null && !uiState.isLoading
-                )
-                
-                Spacer(modifier = Modifier.width(8.dp))
-                
-                FloatingActionButton(
-                    onClick = {
-                        if (messageText.isNotBlank()) {
-                            viewModel.sendMessage(messageText)
-                            messageText = ""
-                        }
-                    },
-                    modifier = Modifier.size(48.dp),
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "Send Message"
+                // Attachment preview
+                if (selectedAttachments.isNotEmpty()) {
+                    AttachmentPreviewGrid(
+                        attachments = selectedAttachments,
+                        onRemoveAttachment = { attachment ->
+                            selectedAttachments = selectedAttachments.filter { it.id != attachment.id }
+                        },
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
+                }
+                
+                // Input row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    // Attach button
+                    IconButton(
+                        onClick = { filePickerLauncher.launch("*/*") },
+                        enabled = uiState.selectedModel != null && !uiState.isLoading
+                    ) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Attach File",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    
+                    OutlinedTextField(
+                        value = messageText,
+                        onValueChange = { messageText = it },
+                        placeholder = { 
+                            Text(
+                                "Type your message...",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            ) 
+                        },
+                        modifier = Modifier.weight(1f),
+                        maxLines = 4,
+                        enabled = uiState.selectedModel != null && !uiState.isLoading
+                    )
+                    
+                    Spacer(modifier = Modifier.width(8.dp))
+                    
+                    FloatingActionButton(
+                        onClick = {
+                            if (messageText.isNotBlank() || selectedAttachments.isNotEmpty()) {
+                                viewModel.sendMessage(messageText, selectedAttachments)
+                                messageText = ""
+                                selectedAttachments = emptyList()
+                            }
+                        },
+                        modifier = Modifier.size(48.dp),
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Send,
+                            contentDescription = "Send Message"
+                        )
+                    }
                 }
             }
         }
@@ -279,6 +331,15 @@ fun MessageItem(
                     vertical = 12.dp
                 )
             ) {
+                // Display attachments first for user messages
+                if (message.isFromUser && message.attachments.isNotEmpty()) {
+                    AttachmentPreviewGrid(
+                        attachments = message.attachments,
+                        onRemoveAttachment = { /* No-op for sent messages */ }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                
                 if (message.isFromUser) {
                     Text(
                         text = message.content,
