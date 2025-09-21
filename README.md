@@ -4,7 +4,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.18-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.19-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -26,7 +26,21 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
 - 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
 
-## 🆕 What's New in v1.18
+## 🆕 What's New in v1.19
+
+### 🔧 Response Processing & JSON Parsing Fixes
+- **Fixed response truncation** - AI responses are no longer cut off at quotes or special characters
+- **Fixed JSON corruption** - Eliminated HTTP 400 errors from malformed conversation history
+- **Enhanced content extraction** - Robust parsing handles complex AI responses properly  
+- **Better error handling** - Comprehensive debugging for request/response processing
+
+### 🐛 Critical Bug Fixes
+- **No more truncated responses** - Full AI responses now display completely
+- **Eliminated HTTP 400 errors** - Fixed JSON escaping sequence and character handling
+- **Conversation continuity** - Multi-message conversations work without corruption
+
+*Previous versions:*
+### v1.18 - Model Management Update
 
 ### 🎯 Model Management Update
 - **Fixed model compatibility issues** - App now uses actual models from your Ollama server
