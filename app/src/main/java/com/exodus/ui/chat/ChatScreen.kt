@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.exodus.data.model.AIModel
 import com.exodus.data.model.Message
 import com.exodus.ui.theme.*
+import com.exodus.ui.components.MarkdownText
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -128,7 +129,7 @@ fun ChatScreen(
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = "Your personal coding assistant",
+                        text = "Your personal private chat bot",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -278,12 +279,21 @@ fun MessageItem(
                     vertical = 12.dp
                 )
             ) {
-                Text(
-                    text = message.content,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (message.isFromUser) userTextColor else aiTextColor,
-                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2
-                )
+                if (message.isFromUser) {
+                    Text(
+                        text = message.content,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = userTextColor,
+                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2
+                    )
+                } else {
+                    MarkdownText(
+                        text = message.content,
+                        color = aiTextColor,
+                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(6.dp))
                 

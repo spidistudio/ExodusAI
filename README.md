@@ -4,7 +4,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.21-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.22-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -28,7 +28,24 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 
 ## 🆕 What's New in v1.21
 
-### 🎨 Enhanced UI with Purple Theming & Responsive Design
+## 🔥 Latest Features (v1.22)
+
+### 📝 Markdown Support & Text Formatting
+- **Bold text rendering** - AI responses now properly render **bold text** using markdown syntax
+- **Enhanced message parsing** - Supports `**text**` formatting for better AI response readability
+- **Selectable text** - AI messages are now selectable for copying important information
+
+### 🎨 Optimized Light Mode
+- **Improved contrast** - Better text readability in light mode with optimized color palette
+- **Softer backgrounds** - Refined light theme colors for reduced eye strain
+- **Enhanced accessibility** - Better contrast ratios for improved readability
+
+### 🤖 Updated Branding
+- **Accurate description** - Banner now reads "Your personal private chat bot" instead of coding assistant
+- **Privacy-focused messaging** - Emphasizes local, private AI interaction
+
+*Previous versions:*
+### v1.21 - Enhanced UI with Purple Theming & Responsive Design
 - **Message bubble theming** - User messages in purple (#6200EA), AI messages in themed surfaces
 - **Complete dark/light theme support** - Auto-detects system preference with proper contrast
 - **Responsive mobile design** - Optimized for all screen sizes from small phones to tablets
