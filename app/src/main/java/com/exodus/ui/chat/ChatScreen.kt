@@ -2,6 +2,7 @@ package com.exodus.ui.chat
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,13 +19,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.exodus.data.model.AIModel
 import com.exodus.data.model.Message
-import com.exodus.ui.theme.AIMessageColor
-import com.exodus.ui.theme.MessageSurfaceColor
-import com.exodus.ui.theme.UserMessageColor
+import com.exodus.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,9 +36,26 @@ fun ChatScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val messages by viewModel.messages.collectAsState()
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
     
     var messageText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+    
+    // Responsive dimensions based on screen size
+    val screenWidth = configuration.screenWidthDp.dp
+    val maxMessageWidth = when {
+        screenWidth < 360.dp -> screenWidth * 0.85f  // Small phones
+        screenWidth < 600.dp -> screenWidth * 0.80f  // Regular phones
+        screenWidth < 840.dp -> screenWidth * 0.75f  // Large phones/small tablets
+        else -> screenWidth * 0.70f                   // Tablets and larger
+    }
+    
+    val horizontalPadding = when {
+        screenWidth < 360.dp -> 12.dp  // Small phones
+        screenWidth < 600.dp -> 16.dp  // Regular phones
+        else -> 24.dp                  // Tablets and larger
+    }
     
     // Set default model on first launch
     LaunchedEffect(Unit) {
@@ -149,12 +166,15 @@ fun ChatScreen(
             state = listState,
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = horizontalPadding, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(messages) { message ->
-                MessageItem(message = message)
+                MessageItem(
+                    message = message,
+                    maxWidth = maxMessageWidth
+                )
             }
             
             if (uiState.isLoading) {
@@ -168,9 +188,12 @@ fun ChatScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = horizontalPadding, vertical = 12.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 4.dp
             )
         ) {
             Row(
@@ -182,9 +205,14 @@ fun ChatScreen(
                 OutlinedTextField(
                     value = messageText,
                     onValueChange = { messageText = it },
-                    placeholder = { Text("Type your message...") },
+                    placeholder = { 
+                        Text(
+                            "Type your message...",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        ) 
+                    },
                     modifier = Modifier.weight(1f),
-                    maxLines = 3,
+                    maxLines = 4,
                     enabled = uiState.selectedModel != null && !uiState.isLoading
                 )
                 
@@ -212,40 +240,57 @@ fun ChatScreen(
 }
 
 @Composable
-fun MessageItem(message: Message) {
+fun MessageItem(
+    message: Message,
+    maxWidth: androidx.compose.ui.unit.Dp = 280.dp
+) {
     val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val isDarkTheme = isSystemInDarkTheme()
+    
+    // Theme-aware colors
+    val userBubbleColor = if (isDarkTheme) DarkUserMessageColor else LightUserMessageColor
+    val aiBubbleColor = if (isDarkTheme) DarkAIMessageColor else LightAIMessageColor
+    val userTextColor = if (isDarkTheme) DarkUserTextColor else LightUserTextColor
+    val aiTextColor = if (isDarkTheme) DarkAITextColor else LightAITextColor
     
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (message.isFromUser) Arrangement.End else Arrangement.Start
     ) {
         Card(
-            modifier = Modifier.widthIn(max = 280.dp),
+            modifier = Modifier.widthIn(max = maxWidth),
             colors = CardDefaults.cardColors(
-                containerColor = if (message.isFromUser) UserMessageColor else AIMessageColor
+                containerColor = if (message.isFromUser) userBubbleColor else aiBubbleColor
             ),
             shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
-                bottomStart = if (message.isFromUser) 16.dp else 4.dp,
-                bottomEnd = if (message.isFromUser) 4.dp else 16.dp
+                topStart = 18.dp,
+                topEnd = 18.dp,
+                bottomStart = if (message.isFromUser) 18.dp else 6.dp,
+                bottomEnd = if (message.isFromUser) 6.dp else 18.dp
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 2.dp
             )
         ) {
             Column(
-                modifier = Modifier.padding(12.dp)
+                modifier = Modifier.padding(
+                    horizontal = 16.dp,
+                    vertical = 12.dp
+                )
             ) {
                 Text(
                     text = message.content,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
+                    color = if (message.isFromUser) userTextColor else aiTextColor,
+                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.2
                 )
                 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 
                 Text(
                     text = dateFormat.format(message.timestamp),
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.7f)
+                    color = (if (message.isFromUser) userTextColor else aiTextColor).copy(alpha = 0.7f)
                 )
             }
         }
