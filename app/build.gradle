@@ -8,14 +8,14 @@ plugins {
 
 android {
     namespace 'com.exodus'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.exodus"
-        minSdk 24
-        targetSdk 34
-        versionCode 110
-        versionName "1.10"
+        minSdk 21
+        targetSdk 35
+        versionCode 112
+        versionName "1.12"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
