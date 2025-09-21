@@ -1,12 +1,12 @@
 # ExodusAI - Offline AI Chat Android App
 
 [![Android](https://img.shields.io/badge/Android-API%2021+-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
-[![Android 16](https://img.shields.io/badge/Android%2016-Compatible-orange.svg?style=flat)](https://developer.android.com/about/versions)
+[![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.12-blue.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.14--QPR2-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
-ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 developer preview support**.
+ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
 ## 📱 Screenshots
 
@@ -25,14 +25,25 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
 - 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
 
-## 🆕 What's New in v1.12
+## 🆕 What's New in v1.14-QPR2
 
-- **Android 16 Compatibility**: Full support for Android 16 developer preview (API 35)
-- **Settings Screen**: New dedicated settings page with theme switching
-- **Theme Toggle**: Switch between dark and light modes on-the-fly
-- **App Information**: Version display and system information in settings
-- **Enhanced Build System**: Upgraded to Gradle 8.4 and Android Gradle Plugin 8.3.0
-- **Improved Network Configuration**: Optimized for local WiFi connectivity
+- **🚀 Android 16 QPR2 Compatibility**: Full support for Android 16 Quarterly Platform Release 2 (API 36)
+- **🔒 Enhanced Security Compliance**: Updated for latest Android security requirements
+- **⚙️ Settings Screen**: Dedicated settings page with theme switching functionality  
+- **🎨 Theme Toggle**: Switch between dark and light modes instantly
+- **📱 Bleeding-Edge Support**: First app to support Android 16 QPR2 developer builds
+- **🛡️ Modern Security Model**: Compliance with experimental Android security features
+- **🏗️ Advanced Build System**: Gradle 8.4 + Android Gradle Plugin 8.3.0
+- **📊 App Information**: Version display and system information in settings
+
+## ⚠️ **Android 16 QPR2 Notice**
+
+This version specifically targets **Android 16 QPR2** (API 36), which is an experimental developer preview. If you're on:
+- **Android 15 or older**: Use ExodusAI v1.11 or earlier  
+- **Android 16 (non-QPR2)**: Use ExodusAI v1.12-v1.13
+- **Android 16 QPR2**: Use this version (v1.14-QPR2) ✅
+
+QPR2 builds may require special installation methods due to enhanced security.
 
 ## 🛠 Technical Stack
 
@@ -44,17 +55,27 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - **Networking**: Retrofit + OkHttp for API communication
 - **Local AI**: Ollama integration (v1.0+)
 - **Build System**: Gradle 8.4 + Android Gradle Plugin 8.3.0
-- **Target SDK**: Android 16 (API 35) with backwards compatibility to API 21
+- **Target SDK**: Android 16 QPR2 (API 36) with backwards compatibility to API 21
+- **Security Model**: Enhanced compliance for experimental Android features
 - **Theme System**: Material Design 3 with dynamic theming
 
 ## 📱 System Requirements
 
+### Standard Android Devices
 - **Android Version**: 5.0+ (API level 21)
-- **Android 16 Support**: ✅ Full compatibility with developer preview
 - **RAM**: Minimum 2GB (4GB+ recommended for larger models)
 - **Storage**: 100MB+ for app, additional space for AI models
-- **Network**: WiFi connection to local Ollama server
+
+### Experimental Android 16 QPR2 Support
+- **✅ Android 16 QPR2**: Full compatibility with bleeding-edge developer builds
+- **⚠️ Installation**: May require ADB or developer mode due to enhanced security
+- **🔧 Developer Options**: Enable "Install unknown apps" and "USB debugging"
+- **🛡️ Security**: QPR2 builds have stricter APK validation requirements
+
+### Development Requirements
 - **Java**: Java 18+ for development builds
+- **Network**: WiFi connection to local Ollama server
+- **Build Tools**: Android SDK with API 36 for QPR2 compatibility
 
 ## 🔧 Prerequisites
 
@@ -81,16 +102,28 @@ Before using the app, you need to have Ollama running on your device or local ne
 
 ### Option 1: Download APK (Recommended)
 
-1. **Download the latest APK** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
+**For Android 16 QPR2 Users:**
+1. **Download APK v1.14-QPR2** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
+2. **Enable Developer Options**: Settings → About Phone → Tap "Build Number" 7 times
+3. **Enable Installation Sources**: Settings → Developer Options → "Install unknown apps"
+4. **Install via ADB** (most reliable for QPR2):
+   ```bash
+   adb install app-debug.apk
+   ```
+
+**For Standard Android Devices:**
+1. **Download appropriate version** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
+   - Android 5.0-15: Use v1.11 or earlier
+   - Android 16 (non-QPR2): Use v1.12-v1.13
 2. **Enable Unknown Sources** in Android settings if needed
-3. **Install APK** - Compatible with Android 5.0+ through Android 16 developer preview
+3. **Install APK** normally through file manager
 
 ### Option 2: Build from Source
 
-**Requirements:**
+**Requirements for QPR2 Builds:**
 - Android Studio Hedgehog or later
 - Java 18+ (OpenJDK recommended)
-- Android SDK with API 35
+- Android SDK with API 36 (experimental)
 - Gradle 8.4+ (handled by wrapper)
 
 **Build Steps:**
@@ -102,22 +135,19 @@ Before using the app, you need to have Ollama running on your device or local ne
 
 2. **Open in Android Studio**:
    - File → Open → Select project folder
-   - Wait for Gradle sync to complete
+   - Wait for Gradle sync (may show warnings about API 36)
 
-3. **Configure for your network** (optional):
-   - Edit `app/src/main/java/com/exodus/di/AppModule.kt`
-   - Update base URL in `provideRetrofit()` method:
-   ```kotlin
-   .baseUrl("http://YOUR_IP_ADDRESS:11434/")
-   ```
+3. **Configure for QPR2** (if building for Android 16 QPR2):
+   - Ensure `compileSdk 36` and `targetSdk 36` in `app/build.gradle`
+   - Verify `tools:targetApi="36"` in `AndroidManifest.xml`
 
 4. **Build and Install**:
    ```bash
-   # Debug build
+   # QPR2 compatible build
    ./gradlew assembleDebug
    
-   # Install on connected device
-   ./gradlew installDebug
+   # Install via ADB (recommended for QPR2)
+   adb install app/build/outputs/apk/debug/app-debug.apk
    ```
 
 ## Configuration
@@ -282,13 +312,34 @@ ExodusAI integrates with Ollama through its REST API:
 - **ChatViewModel**: Manages chat UI state and business logic  
 - **SettingsViewModel**: Manages settings state and theme switching
 - **ChatScreen**: Main chat UI implemented with Jetpack Compose
-- **SettingsScreen**: Settings interface with theme toggle (new in v1.12)
+- **SettingsScreen**: Settings interface with theme toggle (v1.12+)
 - **ExodusDatabase**: Room database for persistent chat history
 - **OllamaApiService**: Retrofit interface for Ollama REST API
 
 ## 🔍 Troubleshooting
 
-### Common Issues
+### Android 16 QPR2 Specific Issues
+
+1. **APK Installation Failures**:
+   - ✅ Use **APK v1.14-QPR2** specifically designed for QPR2
+   - ✅ Install via **ADB**: `adb install app-debug.apk`
+   - ✅ Enable **Developer Options** and **USB debugging**
+   - ✅ Check **"Install unknown apps"** for ADB/file manager
+   - ✅ Temporarily disable **"Verify apps over USB"** in Developer Options
+
+2. **Enhanced Security Restrictions**:
+   - ✅ QPR2 has stricter APK validation - use correct API 36 build
+   - ✅ Enable **"Allow from this source"** when prompted
+   - ✅ Check **Security & Privacy → More security settings**
+   - ✅ Some QPR2 builds require **manual permission grants**
+
+3. **Parsing Package Errors**:
+   - ✅ Ensure using **v1.14-QPR2** (not older versions)
+   - ✅ Clear download cache and re-download APK
+   - ✅ Try different transfer method (USB instead of WhatsApp)
+   - ✅ Verify QPR2 build number in About Phone
+
+### Common Issues (All Android Versions)
 
 1. **"No models available"**:
    - ✅ Ensure Ollama is running: `ollama serve`
@@ -302,25 +353,14 @@ ExodusAI integrates with Ollama through its REST API:
    - ✅ Disable firewalls temporarily for testing
    - ✅ Check if port 11434 is accessible
 
-3. **App parsing errors (Android 16)**:
-   - ✅ Ensure you're using APK v1.12+ for Android 16 compatibility
-   - ✅ Enable "Install unknown apps" in Android settings
-   - ✅ Try downloading APK again if corrupted
-
-4. **Theme not switching**:
+3. **Theme not switching**:
    - ✅ Restart the app after changing theme in Settings
    - ✅ Clear app data if theme preference is stuck
 
-5. **Models not loading after update**:
+4. **Models not loading after update**:
    - ✅ Refresh models list using the update button
    - ✅ Restart Ollama service: `ollama serve`
    - ✅ Check Ollama logs for errors
-
-### Android 16 Specific Issues
-
-- **APK Installation**: Use v1.12+ which targets API 35
-- **Performance**: Android 16 preview may have performance variations
-- **Compatibility**: Report any Android 16-specific issues on GitHub
 
 ### Network Debugging
 
@@ -411,8 +451,9 @@ MIT License - You are free to:
 - ❓ **Questions**: Use GitHub Discussions for general questions
 
 ### Supported Platforms
-- ✅ **Android 5.0 - 15**: Fully supported and tested
-- ✅ **Android 16 Preview**: Compatible (cutting-edge support)
+- ✅ **Android 5.0 - 15**: Fully supported and tested (use v1.11 or earlier)
+- ✅ **Android 16 Preview**: Compatible (use v1.12-v1.13)
+- ✅ **Android 16 QPR2**: Cutting-edge support (use v1.14-QPR2) 🔥
 - ✅ **Emulators**: Android Studio AVD, Genymotion
 - ✅ **Real Devices**: All major manufacturers
 
@@ -420,25 +461,26 @@ MIT License - You are free to:
 
 ## 📈 Roadmap
 
-### v1.13 (Coming Soon)
+### v1.15 (Coming Soon)
+- [ ] Android 17 early compatibility
 - [ ] System theme detection (auto dark/light)
-- [ ] Enhanced model management
-- [ ] Improved error handling
-- [ ] Performance optimizations
+- [ ] Enhanced QPR2 security compliance
+- [ ] Performance optimizations for experimental builds
 
 ### Future Plans
 - [ ] Multi-language support (i18n)
 - [ ] Voice input/output integration
-- [ ] Custom model configuration
+- [ ] Custom model configuration UI
 - [ ] Export/import chat history
 - [ ] Advanced theming options
+- [ ] Edge-to-edge display optimization
 
 ---
 
-**⚠️ Important Notes:**
-- This app requires a local Ollama installation to function
-- No AI models are included - download via Ollama CLI
-- Network connectivity to Ollama server is required
-- Android 16 support is experimental (developer preview)
+**⚠️ Important Notes for Android 16 QPR2:**
+- QPR2 is an experimental developer preview with enhanced security
+- Installation may require ADB or special developer permissions
+- Some features may behave differently on experimental builds
+- Report QPR2-specific issues on GitHub for rapid fixes
 
-**🚀 Ready to chat with AI locally? [Download the latest release](https://github.com/spidistudio/ExodusAI/releases) and get started!**
+**🚀 Ready for bleeding-edge Android 16 QPR2? [Download v1.14-QPR2](https://github.com/spidistudio/ExodusAI/releases) and experience the future!**
