@@ -4,7 +4,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.17-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.18-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -26,7 +26,22 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
 - 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
 
-## 🆕 What's New in v1.17
+## 🆕 What's New in v1.18
+
+### 🎯 Model Management Update
+- **Fixed model compatibility issues** - App now uses actual models from your Ollama server
+- **Enhanced model discovery** - Real-time detection of available models via `/api/tags`
+- **Better error guidance** - Specific instructions when models are not found
+- **Updated default model** - Now uses `codellama:latest` (matches your server)
+- **Improved fallback models** - Shows models that actually exist on your server
+
+### 🔍 Technical Improvements
+- **Proper JSON parsing** - `parseModelsResponse()` now reads real server data
+- **Model dropdown accuracy** - Shows only models available on your Ollama server
+- **Enhanced error messages** - Clear guidance for model installation and setup
+
+*Previous versions:*
+### v1.17 - Critical Threading Fix
 
 - **🔧 CRITICAL FIX**: Resolved NetworkOnMainThreadException that prevented all network connections
 - **🚀 Real AI Responses**: Fixed the root cause of "Demo mode active" messages
