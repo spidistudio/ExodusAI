@@ -8,6 +8,7 @@ import com.exodus.data.repository.ChatRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext as HiltApplicationContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -33,9 +34,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideChatRepository(
+        @HiltApplicationContext context: Context,
         ollamaApiClient: OllamaApiClient,
         messageDao: MessageDao
     ): ChatRepository {
-        return ChatRepository(ollamaApiClient, messageDao)
+        return ChatRepository(context, ollamaApiClient, messageDao)
     }
 }

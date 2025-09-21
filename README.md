@@ -1,5 +1,8 @@
-# ExodusAI - O## ✨ Features
+# ExodusAI - Offline AI Chat Android App
 
+## ✨ Features
+
+- 🖼️ **AI Vision Support** - Send images to vision-enabled AI models for analysis and description
 - 📎 **File Attachments** - Attach images and documents to your chat messages with preview support
 - 🌙 **Adaptive Theme Design** - Dark/Light theme with system preference detection
 - ⚙️ **Settings Screen** - Comprehensive settings with theme toggle and app info
@@ -17,7 +20,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.24-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.25-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -41,14 +44,20 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 
 ## 🆕 What's New in v1.21
 
-## 🔥 Latest Features (v1.24)
+## 🔥 Latest Features (v1.25)
 
-### 📎 File Attachment System
-- **Multi-format Support** - Attach images (JPG, PNG, GIF, etc.) and documents (PDF, TXT, DOCX, etc.) to your chat messages
+### �️ AI Vision Support
+- **Image Analysis** - Send images directly to vision-enabled AI models for detailed analysis
+- **Base64 Encoding** - Automatic image encoding for seamless API integration
+- **Smart Resizing** - Optimized image processing (max 1024x1024) for efficient AI processing
+- **Memory Management** - Efficient bitmap handling with proper cleanup and optimization
+- **Vision Model Support** - Compatible with LLaVA, bakllava, moondream, and other Ollama vision models
+
+### 📎 Enhanced File Attachment System
+- **AI Image Processing** - Attachments are now sent to and processed by AI models
 - **Visual Preview** - Thumbnail previews for images and file icons for documents before sending
 - **Smart File Picker** - Native Android file picker integration with file type filtering
 - **Size Validation** - 10MB file size limit with proper validation and user feedback
-- **Attachment Management** - Add, preview, and remove attachments before sending messages
 - **Chat History Integration** - View attachment previews in conversation history
 
 ### 🎨 Enhanced UI Components
@@ -700,4 +709,4 @@ MIT License - You are free to:
 - Some features may behave differently on experimental builds
 - Report QPR2-specific issues on GitHub for rapid fixes
 
-**🚀 Ready for bleeding-edge Android 16 QPR2? [Download v1.14-QPR2](https://github.com/spidistudio/ExodusAI/releases) and experience the future!**
+**🚀 Ready for AI vision and advanced file attachments? [Download v1.25](https://github.com/spidistudio/ExodusAI/releases) and chat with images!**

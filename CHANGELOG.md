@@ -2,6 +2,27 @@
 
 All notable changes to ExodusAI will be documented in this file.
 
+## [1.25] - 2025-09-21
+
+### Added
+- 🖼️ **AI Vision Support** - Send images directly to vision-enabled AI models for analysis
+- **ImageEncoder Utility** - Base64 encoding system for image attachments
+- **Smart Image Resizing** - Automatic optimization (max 1024x1024) for efficient processing
+- **Memory Management** - Proper bitmap cleanup and resource management
+- **Enhanced API Integration** - Ollama vision API support with image data transmission
+
+### Enhanced
+- **File Attachment System** - Images now processed by AI models, not just displayed
+- **ChatMessage Model** - Added `images` field for vision API compatibility
+- **Error Handling** - Improved image processing error recovery
+- **Performance** - Optimized image encoding and transmission
+
+### Technical
+- Updated ChatRepository to include Context for file operations
+- Enhanced JSON serialization to include image data when present
+- Added comprehensive logging for image processing pipeline
+- Updated dependency injection for Context access
+
 ## [1.05] - 2025-09-20
 
 ### Added

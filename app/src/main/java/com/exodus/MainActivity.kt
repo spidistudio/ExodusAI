@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         // Manual dependency injection since we removed Hilt for VS Code compatibility
         val ollamaApiClient = OllamaApiClient()
         val messageDao = MessageDaoImpl() // Placeholder implementation
-        val chatRepository = ChatRepository(ollamaApiClient, messageDao)
+        val chatRepository = ChatRepository(this, ollamaApiClient, messageDao)
         val chatViewModel = ChatViewModel(chatRepository)
         val updateRepository = UpdateRepository(this)
         val settingsViewModel = SettingsViewModel(updateRepository)

@@ -8,7 +8,8 @@ data class ChatRequest(
 
 data class ChatMessage(
     val role: String, // "user" or "assistant"
-    val content: String
+    val content: String,
+    val images: List<String>? = null // Base64 encoded images for vision models
 )
 
 data class ChatResponse(

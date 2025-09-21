@@ -15,8 +15,8 @@ import javax.inject.Inject
 
 data class SettingsUiState(
     val isDarkMode: Boolean = true,
-    val appVersion: String = "1.24",
-    val buildNumber: String = "124",
+    val appVersion: String = "1.25",
+    val buildNumber: String = "125",
     val updateStatus: UpdateStatus = UpdateStatus.NO_UPDATE,
     val updateInfo: UpdateInfo? = null,
     val lastUpdateCheck: String = "Never"

@@ -166,7 +166,14 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
             AppLogger.d("OllamaAPI", "📝 Message role: ${message.role}, content preview: ${message.content.take(50)}...")
             val escapedContent = escapeJson(message.content)
             AppLogger.d("OllamaAPI", "🔧 Escaped content preview: ${escapedContent.take(50)}...")
-            """{"role":"${message.role}","content":"${escapedContent}"}"""
+            
+            // Include images field if present (for vision models)
+            val imagesJson = message.images?.let { images ->
+                val imagesList = images.joinToString(",") { "\"$it\"" }
+                ""","images":[$imagesList]"""
+            } ?: ""
+            
+            """{"role":"${message.role}","content":"${escapedContent}"$imagesJson}"""
         }
         
         val fullJson = """{"model":"${request.model}","stream":${request.stream},"messages":[$messagesJson]}"""

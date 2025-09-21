@@ -1,5 +1,6 @@
 package com.exodus.data.repository
 
+import android.content.Context
 import com.exodus.data.api.OllamaApiClient
 import com.exodus.data.api.ApiResult
 import com.exodus.data.model.Attachment
@@ -9,9 +10,11 @@ import com.exodus.data.database.MessageDao
 import com.exodus.data.model.AIModel
 import com.exodus.data.model.Message
 import com.exodus.utils.AppLogger
+import com.exodus.utils.ImageEncoder
 import java.util.Date
 
 class ChatRepository(
+    private val context: Context,
     private val ollamaApiClient: OllamaApiClient,
     private val messageDao: MessageDao
 ) {
@@ -59,8 +62,14 @@ class ChatRepository(
                 )
             }.toMutableList()
 
-            // Add current message
-            chatMessages.add(ChatMessage(role = "user", content = message))
+            // Add current message with image attachments if any
+            val imageData = ImageEncoder.encodeImageAttachments(context, attachments)
+            val currentMessage = ChatMessage(
+                role = "user", 
+                content = message,
+                images = if (imageData.isNotEmpty()) imageData else null
+            )
+            chatMessages.add(currentMessage)
 
             // Send to Ollama
             val request = ChatRequest(
