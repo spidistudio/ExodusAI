@@ -169,9 +169,19 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
             
             // Include images field if present (for vision models)
             val imagesJson = message.images?.let { images ->
+                AppLogger.i("OllamaAPI", "🖼️ Including ${images.size} images in message")
+                images.forEachIndexed { index, image ->
+                    AppLogger.d("OllamaAPI", "📸 Image $index: ${image.take(100)}... (${image.length} chars total)")
+                }
                 val imagesList = images.joinToString(",") { "\"$it\"" }
                 ""","images":[$imagesList]"""
             } ?: ""
+            
+            if (message.images != null) {
+                AppLogger.i("OllamaAPI", "✅ Message with images JSON structure ready")
+            } else {
+                AppLogger.d("OllamaAPI", "📝 Text-only message (no images)")
+            }
             
             """{"role":"${message.role}","content":"${escapedContent}"$imagesJson}"""
         }

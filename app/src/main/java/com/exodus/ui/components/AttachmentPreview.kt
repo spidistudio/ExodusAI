@@ -85,13 +85,34 @@ fun AttachmentPreviewItem(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
+                        // File type specific icon and color
+                        val (icon, color, typeLabel) = when {
+                            attachment.fileName.endsWith(".pdf", true) -> 
+                                Triple(Icons.Default.Star, Color(0xFFFF5722), "PDF")
+                            attachment.fileName.endsWith(".txt", true) -> 
+                                Triple(Icons.Default.Star, Color(0xFF4CAF50), "TXT")
+                            attachment.fileName.endsWith(".xlsx", true) || 
+                            attachment.fileName.endsWith(".xls", true) -> 
+                                Triple(Icons.Default.Star, Color(0xFF1976D2), "Excel")
+                            attachment.fileName.endsWith(".docx", true) || 
+                            attachment.fileName.endsWith(".doc", true) -> 
+                                Triple(Icons.Default.Star, Color(0xFF2196F3), "Word")
+                            else -> Triple(Icons.Default.Star, MaterialTheme.colorScheme.primary, "DOC")
+                        }
+                        
                         Icon(
-                            imageVector = Icons.Default.Star,
+                            imageVector = icon,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
+                            tint = color,
+                            modifier = Modifier.size(28.dp)
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = typeLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = color
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = attachment.fileName,
                             style = MaterialTheme.typography.bodySmall,

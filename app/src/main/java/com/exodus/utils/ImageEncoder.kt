@@ -16,13 +16,29 @@ object ImageEncoder {
      * Converts image attachments to base64 strings for Ollama vision API
      */
     fun encodeImageAttachments(context: Context, attachments: List<Attachment>): List<String> {
-        return attachments
-            .filter { it.type == AttachmentType.IMAGE }
+        AppLogger.i("ImageEncoder", "🔄 Processing ${attachments.size} total attachments")
+        
+        // Debug: Log all attachment types
+        attachments.forEachIndexed { index, attachment ->
+            AppLogger.d("ImageEncoder", "🖼️ Attachment $index: ${attachment.fileName} -> Type: ${attachment.type}, MIME: ${attachment.mimeType}")
+        }
+        
+        val imageAttachments = attachments.filter { it.type == AttachmentType.IMAGE }
+        AppLogger.i("ImageEncoder", "🖼️ Found ${imageAttachments.size} image attachments to encode")
+        
+        return imageAttachments
             .mapNotNull { attachment ->
+                AppLogger.d("ImageEncoder", "📸 Encoding image: ${attachment.fileName} (${attachment.mimeType})")
                 try {
-                    encodeImageToBase64(context, attachment.uri)
+                    val encodedImage = encodeImageToBase64(context, attachment.uri)
+                    if (encodedImage != null) {
+                        AppLogger.i("ImageEncoder", "✅ Successfully encoded ${attachment.fileName}")
+                    } else {
+                        AppLogger.w("ImageEncoder", "❌ Failed to encode ${attachment.fileName} - returned null")
+                    }
+                    encodedImage
                 } catch (e: Exception) {
-                    AppLogger.e("ImageEncoder", "Failed to encode image ${attachment.fileName}: ${e.message}")
+                    AppLogger.e("ImageEncoder", "❌ Exception encoding image ${attachment.fileName}: ${e.message}")
                     null
                 }
             }

@@ -26,7 +26,16 @@ enum class AttachmentType {
                 mimeType.startsWith("text/") || 
                 mimeType.startsWith("application/pdf") ||
                 mimeType.startsWith("application/msword") ||
-                mimeType.startsWith("application/vnd.openxmlformats") -> DOCUMENT
+                mimeType.startsWith("application/vnd.openxmlformats-officedocument") ||
+                mimeType.contains("wordprocessingml") ||
+                mimeType.contains("spreadsheetml") ||
+                mimeType.contains("presentationml") ||
+                mimeType.contains("spreadsheet") ||
+                mimeType.contains("excel") ||
+                mimeType.contains("powerpoint") ||
+                mimeType.contains("document") ||
+                mimeType == "application/vnd.ms-excel" ||
+                mimeType == "application/vnd.ms-powerpoint" -> DOCUMENT
                 else -> UNKNOWN
             }
         }

@@ -37,8 +37,14 @@ class AttachmentManager(private val context: Context) {
             // Get MIME type
             val mimeType = contentResolver.getType(uri) ?: getMimeTypeFromExtension(fileName)
             
+            // Debug: Log the MIME type for troubleshooting
+            AppLogger.i("AttachmentManager", "🔍 File: $fileName, MIME type: $mimeType")
+            
             // Determine attachment type
             val attachmentType = AttachmentType.fromMimeType(mimeType)
+            
+            // Debug: Log the determined attachment type
+            AppLogger.i("AttachmentManager", "📋 Attachment type determined: $attachmentType for $fileName")
             
             Attachment(
                 id = UUID.randomUUID().toString(),
