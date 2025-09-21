@@ -29,7 +29,7 @@ class ChatRepository(
         listOf()
     }
 
-    fun sendMessage(
+    suspend fun sendMessage(
         message: String,
         modelName: String,
         conversationHistory: List<Message>
@@ -120,7 +120,7 @@ class ChatRepository(
         }
     }
 
-    fun getAvailableModels(): List<AIModel> {
+    suspend fun getAvailableModels(): List<AIModel> {
         return try {
             when (val response = ollamaApiClient.getAvailableModels()) {
                 is ApiResult.Success -> {

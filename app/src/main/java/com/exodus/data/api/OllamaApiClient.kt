@@ -15,11 +15,11 @@ class OllamaApiClient(
 ) {
     private val apiService = OllamaApiService(baseUrl)
     
-    fun sendMessage(request: ChatRequest): ApiResult<ChatResponse> {
+    suspend fun sendMessage(request: ChatRequest): ApiResult<ChatResponse> {
         return apiService.sendMessage(request)
     }
     
-    fun getAvailableModels(): ApiResult<ModelsResponse> {
+    suspend fun getAvailableModels(): ApiResult<ModelsResponse> {
         return apiService.getAvailableModels()
     }
     

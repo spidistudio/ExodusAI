@@ -5,6 +5,8 @@ import com.exodus.data.model.ChatResponse
 import com.exodus.data.model.ModelsResponse
 import com.exodus.data.model.ModelInfo
 import com.exodus.utils.AppLogger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 import java.io.OutputStreamWriter
@@ -19,8 +21,8 @@ sealed class ApiResult<out T> {
 
 class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434") {
     
-    fun sendMessage(request: ChatRequest): ApiResult<ChatResponse> {
-        return try {
+    suspend fun sendMessage(request: ChatRequest): ApiResult<ChatResponse> = withContext(Dispatchers.IO) {
+        return@withContext try {
             val url = URL("$baseUrl/api/chat")
             val connection = url.openConnection() as HttpURLConnection
             
@@ -41,6 +43,7 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
             AppLogger.network("OllamaAPI", "Messages count: ${request.messages.size}")
             AppLogger.network("OllamaAPI", "Request JSON length: ${requestJson.length} chars")
             AppLogger.network("OllamaAPI", "Connect timeout: 10s, Read timeout: 30s")
+            AppLogger.network("OllamaAPI", "Thread: ${Thread.currentThread().name}")
             AppLogger.network("OllamaAPI", "=== STARTING CONNECTION ===")
             
             OutputStreamWriter(connection.outputStream).use { writer ->
@@ -85,13 +88,14 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
             AppLogger.e("OllamaAPI", "Exception type: ${e.javaClass.simpleName}")
             AppLogger.e("OllamaAPI", "Exception message: ${e.message ?: "No message"}")
             AppLogger.e("OllamaAPI", "Base URL was: $baseUrl")
+            AppLogger.e("OllamaAPI", "Thread: ${Thread.currentThread().name}")
             AppLogger.e("OllamaAPI", "Stack trace: ${e.stackTraceToString().take(500)}...")
             ApiResult.Error(errorMsg)
         }
     }
     
-    fun getAvailableModels(): ApiResult<ModelsResponse> {
-        return try {
+    suspend fun getAvailableModels(): ApiResult<ModelsResponse> = withContext(Dispatchers.IO) {
+        return@withContext try {
             AppLogger.network("OllamaAPI", "🔍 Fetching available models from server")
             val url = URL("$baseUrl/api/tags")
             val connection = url.openConnection() as HttpURLConnection
@@ -99,6 +103,7 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
             connection.requestMethod = "GET"
             connection.setRequestProperty("Accept", "application/json")
             AppLogger.network("OllamaAPI", "GET request to: $url")
+            AppLogger.network("OllamaAPI", "Thread: ${Thread.currentThread().name}")
             
             val responseCode = connection.responseCode
             AppLogger.network("OllamaAPI", "Models API response code: $responseCode")
@@ -122,6 +127,7 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
             }
         } catch (e: Exception) {
             AppLogger.e("OllamaAPI", "❌ Failed to fetch models: ${e.javaClass.simpleName} - ${e.message}", e)
+            AppLogger.e("OllamaAPI", "Thread: ${Thread.currentThread().name}")
             ApiResult.Error(e.message ?: "Unknown error")
         }
     }
