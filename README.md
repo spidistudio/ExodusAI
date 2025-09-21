@@ -4,7 +4,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.16-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.17-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -26,7 +26,21 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
 - 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
 
-## 🆕 What's New in v1.16
+## 🆕 What's New in v1.17
+
+- **🔧 CRITICAL FIX**: Resolved NetworkOnMainThreadException that prevented all network connections
+- **🚀 Real AI Responses**: Fixed the root cause of "Demo mode active" messages
+- **⚡ Proper Threading**: Network calls now run on background threads using Dispatchers.IO
+- **🔍 Enhanced Debug Logging**: Added thread information to debug logs for better troubleshooting
+- **💪 Stability Improvements**: Eliminated main thread blocking that caused app freezes
+
+### 🎯 This Update Fixes:
+- **NetworkOnMainThreadException**: The primary cause of connection failures
+- **Demo Mode Fallbacks**: Real Ollama server connections now work properly
+- **UI Thread Blocking**: App no longer freezes during network operations
+- **Connection Timeouts**: Proper async handling prevents UI lockups
+
+## 📋 Previous Updates (v1.16)
 
 - **🔧 Debug Logging System**: Comprehensive real-time logging for network troubleshooting
 - **📋 Debug Logs Screen**: New screen accessible from Settings to view and export logs
@@ -36,15 +50,6 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 - **📋 Export Logs**: One-tap copy of all logs for technical support sharing
 - **🛡️ Network Security Config**: Enhanced cleartext traffic support for Android 16 QPR2
 - **💾 Memory Management**: Efficient log storage keeping last 1000 entries
-
-### 🔧 Debug Features
-- **Real-time Network Logging**: Monitor every API call attempt with detailed information
-- **Connection Details**: See exact URLs, timeouts, request sizes, and response codes
-- **Error Analysis**: Full exception details with stack traces for debugging
-- **Performance Metrics**: Track connection times and response sizes
-- **Export & Share**: Copy logs to clipboard for easy troubleshooting support
-
-## 📋 Previous Updates (v1.14-QPR2)
 
 - **🚀 Android 16 QPR2 Compatibility**: Full support for Android 16 Quarterly Platform Release 2 (API 36)
 - **🔒 Enhanced Security Compliance**: Updated for latest Android security requirements
@@ -60,9 +65,9 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 This version specifically targets **Android 16 QPR2** (API 36), which is an experimental developer preview. If you're on:
 - **Android 15 or older**: Use ExodusAI v1.11 or earlier  
 - **Android 16 (non-QPR2)**: Use ExodusAI v1.12-v1.13
-- **Android 16 QPR2**: Use this version (v1.16) ✅
+- **Android 16 QPR2**: Use this version (v1.17) ✅
 
-QPR2 builds may require special installation methods due to enhanced security. If you encounter "Demo mode active" messages, use the new **Debug Logs** feature in Settings to troubleshoot network connectivity.
+QPR2 builds may require special installation methods due to enhanced security. **v1.17 fixes the critical NetworkOnMainThreadException** - if you were getting "Demo mode active" messages, this update resolves the issue!
 
 ## 🛠 Technical Stack
 
@@ -379,7 +384,7 @@ ExodusAI integrates with Ollama through its REST API:
 ### Android 16 QPR2 Specific Issues
 
 1. **APK Installation Failures**:
-   - ✅ Use **APK v1.16** specifically designed for QPR2
+   - ✅ Use **APK v1.17** specifically designed for QPR2
    - ✅ Install via **ADB**: `adb install app-debug.apk`
    - ✅ Enable **Developer Options** and **USB debugging**
    - ✅ Check **"Install unknown apps"** for ADB/file manager
@@ -392,7 +397,7 @@ ExodusAI integrates with Ollama through its REST API:
    - ✅ Some QPR2 builds require **manual permission grants**
 
 3. **Parsing Package Errors**:
-   - ✅ Ensure using **v1.16** (not older versions)
+   - ✅ Ensure using **v1.17** (not older versions)
    - ✅ Clear download cache and re-download APK
    - ✅ Try different transfer method (USB instead of WhatsApp)
    - ✅ Verify QPR2 build number in About Phone
