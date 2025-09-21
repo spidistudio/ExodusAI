@@ -84,6 +84,18 @@ class ChatRepository(
                     
                     // Provide a helpful fallback response when Ollama is not available
                     when {
+                        response.message.contains("model") && response.message.contains("not found") -> {
+                            "🤖 **Model Not Found**\n\n" +
+                            "The model '$modelName' is not available on your Ollama server.\n\n" +
+                            "**Available models on your server:**\n" +
+                            "• codellama:latest\n" +
+                            "• codellama-custom:latest\n\n" +
+                            "**To install more models:**\n" +
+                            "1. `ollama pull llama2` - Install Llama 2\n" +
+                            "2. `ollama pull codellama:13b-instruct` - Install CodeLlama 13B\n" +
+                            "3. `ollama list` - See all installed models\n\n" +
+                            "Please select an available model from the dropdown above."
+                        }
                         response.message.contains("Failed to connect") || 
                         response.message.contains("Connection refused") || 
                         response.message.contains("Unable to resolve host") ||
@@ -93,9 +105,9 @@ class ChatRepository(
                             "I'm currently running in demo mode because Ollama server is not available. " +
                             "To get real AI responses:\n\n" +
                             "1. Install Ollama from https://ollama.ai\n" +
-                            "2. Run: `ollama pull codellama:13b-instruct`\n" +
+                            "2. Run: `ollama pull codellama:latest`\n" +
                             "3. Start server: `ollama serve`\n\n" +
-                            "For now, I can only echo your messages in demo mode! CodeLlama 13B is perfect for coding tasks! �"
+                            "For now, I can only echo your messages in demo mode! CodeLlama is perfect for coding tasks! 💻"
                         }
                         else -> {
                             "🤖 **Demo Response**\n\n" +
@@ -134,18 +146,20 @@ class ChatRepository(
                     }
                 }
                 is ApiResult.Error -> {
-                    // Return default models if API fails
+                    AppLogger.w("ChatRepo", "⚠️ API failed to fetch models, using fallback list")
+                    // Return models that we know exist on your server
                     listOf(
-                        AIModel("codellama-custom:latest", "CodeLlama Custom 13B", "3.6 GB", true),
-                        AIModel("codellama:latest", "CodeLlama Standard", "3.6 GB", true)
+                        AIModel("codellama:latest", "CodeLlama Latest", "3.8 GB", true),
+                        AIModel("codellama-custom:latest", "CodeLlama Custom", "3.8 GB", true)
                     )
                 }
             }
         } catch (e: Exception) {
-            // Return default models if error
+            AppLogger.e("ChatRepo", "❌ Exception getting models: ${e.message}", e)
+            // Return models that we know exist on your server
             listOf(
-                AIModel("codellama:13b-instruct", "CodeLlama 13B Instruct", "7.3 GB", true),
-                AIModel("llama2", "Llama 2", "3.8 GB", true)
+                AIModel("codellama:latest", "CodeLlama Latest", "3.8 GB", true),
+                AIModel("codellama-custom:latest", "CodeLlama Custom", "3.8 GB", true)
             )
         }
     }

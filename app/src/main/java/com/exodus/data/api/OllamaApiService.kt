@@ -193,18 +193,91 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.115:11434
     }
     
     private fun parseModelsResponse(jsonString: String): ModelsResponse {
-        // Simple parsing for models array
         val models = mutableListOf<ModelInfo>()
-        val modelsStart = jsonString.indexOf("\"models\":[") + 10
-        val modelsEnd = jsonString.lastIndexOf("]")
         
-        if (modelsStart > 10 && modelsEnd > modelsStart) {
-            val modelsSection = jsonString.substring(modelsStart, modelsEnd)
-            // This is a simplified parser - in real implementation you'd use proper JSON parsing
-            models.add(ModelInfo("llama2", 3825819519L, "sample-digest", "2024-01-01T00:00:00Z"))
+        try {
+            AppLogger.d("OllamaAPI", "📝 Parsing models JSON: ${jsonString.take(200)}...")
+            
+            // Find the models array in the JSON
+            val modelsStart = jsonString.indexOf("\"models\":[")
+            if (modelsStart == -1) {
+                AppLogger.w("OllamaAPI", "⚠️ No 'models' array found in response")
+                return ModelsResponse(models)
+            }
+            
+            // Extract the models array section
+            val jsonAfterModels = jsonString.substring(modelsStart + 10) // Skip "models":[
+            var braceCount = 0
+            var inQuotes = false
+            var escape = false
+            var arrayEnd = -1
+            
+            for (i in jsonAfterModels.indices) {
+                val char = jsonAfterModels[i]
+                when {
+                    escape -> escape = false
+                    char == '\\' -> escape = true
+                    char == '"' && !escape -> inQuotes = !inQuotes
+                    !inQuotes && char == '[' -> braceCount++
+                    !inQuotes && char == ']' -> {
+                        if (braceCount == 0) {
+                            arrayEnd = i
+                            break
+                        } else {
+                            braceCount--
+                        }
+                    }
+                }
+            }
+            
+            if (arrayEnd != -1) {
+                val modelsArray = jsonAfterModels.substring(0, arrayEnd)
+                AppLogger.d("OllamaAPI", "📝 Models array content: ${modelsArray.take(100)}...")
+                
+                // Parse individual model objects
+                parseModelObjects(modelsArray, models)
+            }
+            
+        } catch (e: Exception) {
+            AppLogger.e("OllamaAPI", "❌ Error parsing models response: ${e.message}", e)
         }
         
+        AppLogger.i("OllamaAPI", "✅ Parsed ${models.size} models from server response")
         return ModelsResponse(models)
+    }
+    
+    private fun parseModelObjects(modelsArray: String, models: MutableList<ModelInfo>) {
+        // Split by objects (simple approach for now)
+        val modelObjects = modelsArray.split("},{").map { 
+            if (!it.startsWith("{")) "{$it" else it
+        }.map { 
+            if (!it.endsWith("}")) "$it}" else it
+        }
+        
+        for (modelObj in modelObjects) {
+            if (modelObj.trim().isEmpty() || modelObj == "{}") continue
+            
+            try {
+                val name = extractModelField(modelObj, "name")
+                val sizeStr = extractModelField(modelObj, "size")
+                val digest = extractModelField(modelObj, "digest")
+                val modifiedAt = extractModelField(modelObj, "modified_at")
+                
+                if (name.isNotEmpty()) {
+                    val size = sizeStr.toLongOrNull() ?: 0L
+                    models.add(ModelInfo(name, size, digest, modifiedAt))
+                    AppLogger.d("OllamaAPI", "➕ Added model: $name (${size} bytes)")
+                }
+            } catch (e: Exception) {
+                AppLogger.w("OllamaAPI", "⚠️ Failed to parse model object: ${modelObj.take(50)}... - ${e.message}")
+            }
+        }
+    }
+    
+    private fun extractModelField(modelObj: String, fieldName: String): String {
+        val pattern = "\"$fieldName\"\\s*:\\s*\"?([^,}\"]+)\"?"
+        val regex = Regex(pattern)
+        return regex.find(modelObj)?.groupValues?.get(1)?.trim('"') ?: ""
     }
     
     private fun extractJsonValue(json: String, key: String): String {
