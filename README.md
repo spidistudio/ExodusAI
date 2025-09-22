@@ -2,6 +2,9 @@
 
 ## ✨ Features
 
+- 🌐 **Multi-Provider AI Support** - Choose between online (Groq) and offline (Ollama) AI providers
+- 🤖 **Smart Provider Switching** - Auto mode intelligently switches based on network and API key availability
+- 🔑 **Secure API Key Management** - Encrypted storage for Groq API keys with privacy protection
 - 🖼️ **AI Vision Support** - Send images to vision-enabled AI models for analysis and description
 - 📎 **File Attachments** - Attach images and documents to your chat messages with preview support
 - 🌙 **Adaptive Theme Design** - Dark/Light theme with system preference detection
@@ -14,13 +17,13 @@
 - 📱 **Offline Operation** - Works entirely offline with local AI models
 - 🚀 **Performance Optimized** - Built with modern Android architecture
 - 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
-- 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+t Android App
+- 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
 
 [![Android](https://img.shields.io/badge/Android-API%2021+-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=21)
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.26-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.27-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -28,21 +31,41 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 
 *Coming soon - Screenshots will be added once the app is deployed*
 
-## ✨ Features
+## 🔥 Latest Features (v1.27)
 
-- 🌙 **Adaptive Theme Design** - Dark/Light theme with system preference detection
-- ⚙️ **Settings Screen** - Comprehensive settings with theme toggle and app info
-- � **Debug Logging System** - Real-time network monitoring and troubleshooting tools
-- �💬 **Chat Interface** - Intuitive messaging interface similar to popular chat apps
-- 🤖 **AI Model Selection** - Dropdown list to select from available downloaded AI models
-- 🔄 **Model Updates** - Easy way to check for and download new AI models
-- 💾 **Chat History** - Persistent storage of conversations with different models
-- 📱 **Offline Operation** - Works entirely offline with local AI models
-- 🚀 **Performance Optimized** - Built with modern Android architecture
-- 🔧 **Android 16 Ready** - Full compatibility with Android 16 developer preview
-- 📱 **Wide Compatibility** - Supports Android 5.0+ (API 21) to Android 16+
+### � Multi-Provider AI Architecture
+- **Smart Provider Selection** - Choose between Auto, Online (Groq), and Offline (Ollama) modes
+- **Automatic Fallback** - Auto mode intelligently switches providers based on network connectivity and API key availability
+- **Groq Cloud Integration** - Access to powerful cloud-based AI models like llama-3.1-70b-versatile for high-performance processing
+- **Seamless Switching** - Real-time provider switching without interrupting your workflow
 
-## 🔥 Latest Features (v1.26)
+### 🔑 Secure API Management
+- **Encrypted Storage** - Groq API keys stored securely using Android's encrypted SharedPreferences
+- **Privacy Protection** - API keys never logged or exposed in debug information
+- **Easy Configuration** - Simple setup in Settings with show/hide functionality and clear guidance
+- **Status Indicators** - Real-time indicators showing API key configuration status
+
+### 🤖 Enhanced Provider Options
+- **Auto Mode** - Intelligent provider selection that prioritizes online when available, falls back to offline
+- **Groq Online** - High-speed cloud processing with vision support and latest AI models
+- **Ollama Local** - Complete privacy and offline operation with your local models
+- **Provider Status** - Clear indicators showing which provider is currently active
+
+### 🛠️ Technical Infrastructure
+- **Multi-Provider Repository** - Clean architecture supporting multiple AI service providers
+- **Network Detection** - Smart connectivity checking for automatic provider switching
+- **Error Handling** - Comprehensive error messages with actionable guidance for setup issues
+- **Streaming Support** - Real-time response streaming from both Groq and Ollama services
+
+### 🎨 Enhanced User Experience
+- **Provider Selection UI** - Intuitive dropdown in chat screen for easy provider switching
+- **Real-time Status** - Visual indicators showing current provider and API key status
+- **Setup Guidance** - Step-by-step instructions for configuring each provider
+- **Seamless Integration** - Provider switching works with existing chat history and attachments
+
+## � Previous Updates
+
+### v1.26 - Enhanced Document Processing
 
 ### 🔧 Enhanced Document Processing
 - **Fixed Word Document Recognition** - Word documents (.docx/.doc) now properly detected as documents instead of images
@@ -245,9 +268,12 @@ QPR2 builds may require special installation methods due to enhanced security. *
 - **Architecture**: MVVM with Clean Architecture
 - **Dependency Injection**: Hilt/Dagger 2.48
 - **Database**: Room Database with SQLite
-- **Networking**: Retrofit + OkHttp for API communication
+- **Networking**: OkHttp 4.12.0 for HTTP communication
+- **Multi-Provider Support**: Groq API + Ollama integration
+- **Security**: Encrypted SharedPreferences for secure API key storage
 - **Debug System**: Centralized AppLogger with real-time monitoring
 - **Local AI**: Ollama integration (v1.0+)
+- **Cloud AI**: Groq API integration with streaming support
 - **Build System**: Gradle 8.4 + Android Gradle Plugin 8.3.0
 - **Target SDK**: Android 16 QPR2 (API 36) with backwards compatibility to API 21
 - **Security Model**: Enhanced compliance for experimental Android features
@@ -280,18 +306,31 @@ QPR2 builds may require special installation methods due to enhanced security. *
 
 ## 🔧 Prerequisites
 
-Before using the app, you need to have Ollama running on your device or local network:
+ExodusAI supports multiple AI providers. You can use either or both:
 
-1. **Install Ollama** on your computer or server
+### Option 1: Groq Cloud AI (Online)
+1. **Get a Groq API Key**:
+   - Visit [console.groq.com/keys](https://console.groq.com/keys)
+   - Create a free account
+   - Generate an API key
+   - Configure it in ExodusAI Settings
+
+2. **Benefits of Groq**:
+   - High-speed cloud processing
+   - Latest AI models (llama-3.1-70b-versatile)
+   - No local setup required
+   - Excellent for quick responses
+
+### Option 2: Ollama Local AI (Offline)
+1. **Install Ollama** on your computer or server:
    - Visit [ollama.ai](https://ollama.ai) for installation instructions
    - Default runs on `http://localhost:11434`
 
 2. **Download AI Models** in Ollama:
    ```bash
-   ollama pull llama2
+   ollama pull llama3.2:latest
    ollama pull codellama
-   ollama pull mistral
-   ollama pull phi
+   ollama pull llava    # For vision/image support
    ```
 
 3. **Configure Network Access**:
@@ -299,12 +338,22 @@ Before using the app, you need to have Ollama running on your device or local ne
    - For emulator: Use `http://10.0.2.2:11434`
    - For real device: Use your computer's IP address
 
+### Auto Mode (Recommended)
+- ExodusAI can automatically choose the best available provider
+- Uses Groq when online with API key, falls back to Ollama when offline
+- No manual switching required
+
 ## 📥 Installation
 
 ### Option 1: Download APK (Recommended)
 
+**Latest Version (v1.27):**
+1. **Download APK v1.27** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
+2. **Enable Installation Sources** if needed: Settings → Security → "Unknown Sources"
+3. **Install APK** through file manager or ADB
+
 **For Android 16 QPR2 Users:**
-1. **Download APK v1.14-QPR2** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
+1. **Download APK v1.27** (fully compatible with QPR2)
 2. **Enable Developer Options**: Settings → About Phone → Tap "Build Number" 7 times
 3. **Enable Installation Sources**: Settings → Developer Options → "Install unknown apps"
 4. **Install via ADB** (most reliable for QPR2):
@@ -313,11 +362,23 @@ Before using the app, you need to have Ollama running on your device or local ne
    ```
 
 **For Standard Android Devices:**
-1. **Download appropriate version** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
-   - Android 5.0-15: Use v1.11 or earlier
-   - Android 16 (non-QPR2): Use v1.12-v1.13
+1. **Download v1.27** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
 2. **Enable Unknown Sources** in Android settings if needed
 3. **Install APK** normally through file manager
+
+### Setup After Installation
+
+**Quick Start with Groq (Online):**
+1. Open ExodusAI and go to Settings
+2. Enter your Groq API key in "API Configuration"
+3. Return to chat and select "Auto" or "Online (Groq)" mode
+4. Start chatting immediately!
+
+**Local Setup with Ollama (Offline):**
+1. Install Ollama on your computer from [ollama.ai](https://ollama.ai)
+2. Download models: `ollama pull llama3.2:latest`
+3. In ExodusAI, select "Offline (Ollama)" mode
+4. Start private, offline conversations
 
 ### Option 2: Build from Source
 
@@ -397,26 +458,50 @@ If using a real Android device with Ollama on your computer:
 
 ## 🚀 Usage
 
+### Quick Start (v1.27)
+
 1. **Launch ExodusAI** on your Android device
 
-2. **Access Settings** (enhanced in v1.16):
-   - Tap the settings icon in the top-right corner
-   - Choose between Dark/Light theme
-   - View app version and system information
-   - **NEW**: Access Debug Logs for troubleshooting
+2. **Choose Your AI Provider**:
+   - **Auto Mode** (recommended): Automatically uses best available provider
+   - **Online (Groq)**: Fast cloud processing with latest models
+   - **Offline (Ollama)**: Complete privacy with local models
 
-3. **Debug Network Issues** (v1.16):
-   - If you see "Demo mode active" messages:
-     1. Go to Settings → "View Debug Logs"
-     2. Send a test message to generate logs
-     3. Copy logs using the share button
-     4. Review connection errors and network details
-   - Real-time monitoring of all network activity
-   - Color-coded log levels for easy issue identification
+3. **Configure API Access** (if using Groq):
+   - Go to Settings → "API Configuration"
+   - Enter your Groq API key from [console.groq.com/keys](https://console.groq.com/keys)
+   - API key is stored securely and encrypted
 
-4. **Select an AI model** from the dropdown menu:
-   - The app automatically detects available models from your Ollama instance
-   - Models appear once Ollama connection is established
+4. **Start Chatting**:
+   - Type your message in the input field
+   - The app shows which provider is active (🌐 for Groq, 🏠 for Ollama)
+   - Responses arrive in real-time with intelligent provider switching
+
+### Advanced Features
+
+5. **Provider Management**:
+   - Switch providers anytime using the dropdown in chat
+   - Real-time status indicators show connection and API key status
+   - Auto mode seamlessly handles network changes
+
+6. **Settings & Customization** (enhanced in v1.27):
+   - **Theme Switching**: Toggle between Dark/Light modes
+   - **API Configuration**: Secure Groq API key management
+   - **Debug Logs**: Advanced troubleshooting for network issues
+   - **App Information**: Version details and system info
+
+7. **File Attachments** (works with both providers):
+   - Attach images and documents to your messages
+   - AI models can analyze images and process document content
+   - Preview attachments before sending
+
+### Troubleshooting
+
+8. **Connection Issues**:
+   - **Groq**: Check API key in Settings, verify internet connection
+   - **Ollama**: Ensure Ollama is running and accessible on your network
+   - **Auto Mode**: Will automatically fall back if one provider fails
+   - **Debug Logs**: Access detailed connection information in Settings
 
 5. **Start chatting**:
    - Type your message in the input field at the bottom
@@ -719,4 +804,4 @@ MIT License - You are free to:
 - Some features may behave differently on experimental builds
 - Report QPR2-specific issues on GitHub for rapid fixes
 
-**🚀 Ready for enhanced document processing and improved file handling? [Download v1.26](https://github.com/spidistudio/ExodusAI/releases) and experience better document support!**
+**🚀 Ready for multi-provider AI with intelligent switching? [Download v1.27](https://github.com/spidistudio/ExodusAI/releases) and experience the future of mobile AI chat!**

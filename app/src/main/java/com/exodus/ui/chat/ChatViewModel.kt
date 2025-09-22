@@ -8,16 +8,39 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.exodus.data.model.AIModel
 import com.exodus.data.model.Attachment
+import com.exodus.data.model.LLMProvider
 import com.exodus.data.model.Message
 import com.exodus.data.repository.ChatRepository
+import com.exodus.data.repository.UserPreferencesRepository
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import java.util.Date
 
 class ChatViewModel(
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ChatUiState())
-    val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
+    private val _localState = MutableStateFlow(LocalChatState())
+    val uiState: StateFlow<ChatUiState> = combine(
+        _localState,
+        userPreferencesRepository.selectedProvider,
+        userPreferencesRepository.groqApiKey
+    ) { local: LocalChatState, provider: LLMProvider, apiKey: String? ->
+        ChatUiState(
+            selectedModel = local.selectedModel,
+            selectedProvider = provider,
+            groqApiKey = apiKey,
+            isLoading = local.isLoading,
+            isLoadingModels = local.isLoadingModels,
+            errorMessage = local.errorMessage
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ChatUiState()
+    )
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages.asStateFlow()
@@ -34,14 +57,14 @@ class ChatViewModel(
         viewModelScope.launch {
             try {
                 val allMessages = chatRepository.getAllMessages()
-                val selectedModel = _uiState.value.selectedModel?.name
+                val selectedModel = _localState.value.selectedModel?.name
                 _messages.value = if (selectedModel != null) {
                     allMessages.filter { it.modelName == selectedModel }
                 } else {
                     allMessages
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
+                _localState.value = _localState.value.copy(
                     errorMessage = "Failed to load messages: ${e.message}"
                 )
             }
@@ -49,12 +72,13 @@ class ChatViewModel(
     }
 
     fun sendMessage(content: String, attachments: List<Attachment> = emptyList()) {
-        val selectedModel = _uiState.value.selectedModel ?: return
+        val currentUiState = uiState.value
+        val selectedModel = currentUiState.selectedModel ?: return
 
         if (content.isBlank() && attachments.isEmpty()) return
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
+            _localState.value = _localState.value.copy(
                 isLoading = true,
                 errorMessage = null
             )
@@ -78,7 +102,9 @@ class ChatViewModel(
                     message = content,
                     modelName = selectedModel.name,
                     conversationHistory = _messages.value,
-                    attachments = attachments
+                    attachments = attachments,
+                    providerPreference = currentUiState.selectedProvider,
+                    groqApiKey = currentUiState.groqApiKey
                 )
                 
                 // Create and add AI response
@@ -93,12 +119,12 @@ class ChatViewModel(
                 updatedMessages.add(aiMessage)
                 _messages.value = updatedMessages
                 
-                _uiState.value = _uiState.value.copy(
+                _localState.value = _localState.value.copy(
                     isLoading = false,
                     errorMessage = null
                 )
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
+                _localState.value = _localState.value.copy(
                     isLoading = false,
                     errorMessage = e.message ?: "Unknown error occurred"
                 )
@@ -107,23 +133,23 @@ class ChatViewModel(
     }
 
     fun selectModel(model: AIModel) {
-        _uiState.value = _uiState.value.copy(selectedModel = model)
+        _localState.value = _localState.value.copy(selectedModel = model)
         loadMessages() // Refresh messages for the new model
     }
 
     fun loadAvailableModels() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoadingModels = true)
+            _localState.value = _localState.value.copy(isLoadingModels = true)
 
             try {
                 val models = chatRepository.getAvailableModels()
                 _availableModels.value = models
-                _uiState.value = _uiState.value.copy(
+                _localState.value = _localState.value.copy(
                     isLoadingModels = false,
-                    selectedModel = models.firstOrNull() ?: _uiState.value.selectedModel
+                    selectedModel = models.firstOrNull() ?: _localState.value.selectedModel
                 )
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
+                _localState.value = _localState.value.copy(
                     isLoadingModels = false,
                     errorMessage = e.message ?: "Failed to load models"
                 )
@@ -138,7 +164,7 @@ class ChatViewModel(
                 // Refresh models after download attempt
                 loadAvailableModels()
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
+                _localState.value = _localState.value.copy(
                     errorMessage = e.message ?: "Failed to download model"
                 )
             }
@@ -147,7 +173,7 @@ class ChatViewModel(
 
     fun clearMessages() {
         viewModelScope.launch {
-            val selectedModel = _uiState.value.selectedModel
+            val selectedModel = _localState.value.selectedModel
             if (selectedModel != null) {
                 chatRepository.clearMessagesForModel(selectedModel.name)
             } else {
@@ -158,11 +184,28 @@ class ChatViewModel(
     }
 
     fun clearError() {
-        _uiState.value = _uiState.value.copy(errorMessage = null)
+        _localState.value = _localState.value.copy(errorMessage = null)
+    }
+
+    fun selectProvider(provider: LLMProvider) {
+        userPreferencesRepository.setSelectedProvider(provider)
+    }
+
+    fun updateGroqApiKey(apiKey: String) {
+        userPreferencesRepository.setGroqApiKey(apiKey.trim().takeIf { it.isNotBlank() })
     }
 }
 
 data class ChatUiState(
+    val selectedModel: AIModel? = null,
+    val selectedProvider: LLMProvider = LLMProvider.AUTO,
+    val groqApiKey: String? = null,
+    val isLoading: Boolean = false,
+    val isLoadingModels: Boolean = false,
+    val errorMessage: String? = null
+)
+
+private data class LocalChatState(
     val selectedModel: AIModel? = null,
     val isLoading: Boolean = false,
     val isLoadingModels: Boolean = false,

@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.exodus.data.model.AIModel
 import com.exodus.data.model.Attachment
+import com.exodus.data.model.LLMProvider
 import com.exodus.data.model.Message
 import com.exodus.ui.theme.*
 import com.exodus.ui.components.MarkdownText
@@ -165,6 +166,117 @@ fun ChatScreen(
                 )
             }
         }
+
+        // AI Provider Selection
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "AI Provider",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                var expanded by remember { mutableStateOf(false) }
+                val providers = listOf(
+                    LLMProvider.AUTO,
+                    LLMProvider.GROQ_ONLINE,
+                    LLMProvider.OLLAMA_LOCAL
+                )
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    OutlinedTextField(
+                        value = uiState.selectedProvider.displayName,
+                        onValueChange = { },
+                        readOnly = true,
+                        label = { Text("Provider Mode") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                        )
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        providers.forEach { provider ->
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text(
+                                            text = provider.displayName,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = if (provider == uiState.selectedProvider) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                        Text(
+                                            text = provider.description,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    viewModel.selectProvider(provider)
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // Show API key status for Groq
+                if (uiState.selectedProvider == LLMProvider.GROQ_ONLINE || uiState.selectedProvider == LLMProvider.AUTO) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val hasApiKey = !uiState.groqApiKey.isNullOrBlank()
+                        Icon(
+                            imageVector = if (hasApiKey) Icons.Default.CheckCircle else Icons.Default.Clear,
+                            contentDescription = if (hasApiKey) "API Key Configured" else "API Key Missing",
+                            tint = if (hasApiKey) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (!uiState.groqApiKey.isNullOrBlank()) "Groq API Key: Configured" else "Groq API Key: Missing",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (!uiState.groqApiKey.isNullOrBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                        )
+                    }
+                    
+                    if (uiState.groqApiKey.isNullOrBlank() && (uiState.selectedProvider == LLMProvider.GROQ_ONLINE || uiState.selectedProvider == LLMProvider.AUTO)) {
+                        Text(
+                            text = "Configure API key in Settings to use Groq (Online)",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Error message
         uiState.errorMessage?.let { error ->

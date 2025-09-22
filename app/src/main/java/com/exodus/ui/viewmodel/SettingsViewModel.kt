@@ -5,18 +5,30 @@ import androidx.lifecycle.viewModelScope
 import com.exodus.data.model.UpdateInfo
 import com.exodus.data.model.UpdateStatus
 import com.exodus.data.repository.UpdateRepository
+import com.exodus.data.repository.UserPreferencesRepository
 import com.exodus.utils.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
 import javax.inject.Inject
 
 data class SettingsUiState(
     val isDarkMode: Boolean = true,
-    val appVersion: String = "1.26",
-    val buildNumber: String = "126",
+    val appVersion: String = "1.27",
+    val buildNumber: String = "127",
+    val groqApiKey: String? = null,
+    val updateStatus: UpdateStatus = UpdateStatus.NO_UPDATE,
+    val updateInfo: UpdateInfo? = null,
+    val lastUpdateCheck: String = "Never"
+)
+
+private data class LocalSettingsState(
+    val appVersion: String = "1.27",
+    val buildNumber: String = "127",
     val updateStatus: UpdateStatus = UpdateStatus.NO_UPDATE,
     val updateInfo: UpdateInfo? = null,
     val lastUpdateCheck: String = "Never"
@@ -24,19 +36,36 @@ data class SettingsUiState(
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val updateRepository: UpdateRepository
+    private val updateRepository: UpdateRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     
-    private val _uiState = MutableStateFlow(SettingsUiState())
-    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+    // Combine user preferences with local state
+    private val _localState = MutableStateFlow(LocalSettingsState())
+    val uiState: StateFlow<SettingsUiState> = combine(
+        _localState,
+        userPreferencesRepository.groqApiKey,
+        userPreferencesRepository.isDarkMode
+    ) { local: LocalSettingsState, groqApiKey: String?, isDarkMode: Boolean ->
+        SettingsUiState(
+            isDarkMode = isDarkMode,
+            appVersion = local.appVersion,
+            buildNumber = local.buildNumber,
+            groqApiKey = groqApiKey,
+            updateStatus = local.updateStatus,
+            updateInfo = local.updateInfo,
+            lastUpdateCheck = local.lastUpdateCheck
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = SettingsUiState()
+    )
     
     fun toggleDarkMode() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isDarkMode = !_uiState.value.isDarkMode
-            )
-            // In a real app, you would save this preference to SharedPreferences or DataStore
-            // For now, we'll just update the state
+            val currentMode = userPreferencesRepository.getIsDarkMode()
+            userPreferencesRepository.setIsDarkMode(!currentMode)
         }
     }
     
@@ -45,7 +74,7 @@ class SettingsViewModel @Inject constructor(
             try {
                 AppLogger.d("SettingsViewModel", "Starting update check...")
                 
-                _uiState.value = _uiState.value.copy(
+                _localState.value = _localState.value.copy(
                     updateStatus = UpdateStatus.CHECKING
                 )
                 
@@ -59,7 +88,7 @@ class SettingsViewModel @Inject constructor(
                 val currentTime = java.text.SimpleDateFormat("MMM dd, HH:mm", java.util.Locale.getDefault())
                     .format(java.util.Date())
                 
-                _uiState.value = _uiState.value.copy(
+                _localState.value = _localState.value.copy(
                     updateStatus = status,
                     updateInfo = updateInfo,
                     lastUpdateCheck = currentTime
@@ -69,7 +98,7 @@ class SettingsViewModel @Inject constructor(
                 
             } catch (e: Exception) {
                 AppLogger.e("SettingsViewModel", "Error during update check", e)
-                _uiState.value = _uiState.value.copy(
+                _localState.value = _localState.value.copy(
                     updateStatus = UpdateStatus.ERROR,
                     updateInfo = null
                 )
@@ -78,7 +107,7 @@ class SettingsViewModel @Inject constructor(
     }
     
     fun downloadUpdate() {
-        val updateInfo = _uiState.value.updateInfo
+        val updateInfo = _localState.value.updateInfo
         if (updateInfo?.isUpdateAvailable == true && updateInfo.releaseInfo != null) {
             AppLogger.d("SettingsViewModel", "Opening update download for version ${updateInfo.latestVersion}")
             updateRepository.openUpdatePage(updateInfo.releaseInfo)
@@ -86,9 +115,15 @@ class SettingsViewModel @Inject constructor(
     }
     
     fun dismissUpdateStatus() {
-        _uiState.value = _uiState.value.copy(
+        _localState.value = _localState.value.copy(
             updateStatus = UpdateStatus.NO_UPDATE,
             updateInfo = null
         )
+    }
+    
+    fun updateGroqApiKey(apiKey: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.setGroqApiKey(apiKey.trim().takeIf { it.isNotBlank() })
+        }
     }
 }

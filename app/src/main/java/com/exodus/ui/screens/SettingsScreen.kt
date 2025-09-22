@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -83,6 +84,90 @@ fun SettingsScreen(
                         Switch(
                             checked = uiState.isDarkMode,
                             onCheckedChange = { viewModel.toggleDarkMode() }
+                        )
+                    }
+                }
+            }
+            
+            // API Configuration Section
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "API Configuration",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    
+                    var groqApiKeyText by remember { mutableStateOf(uiState.groqApiKey ?: "") }
+                    var showApiKey by remember { mutableStateOf(false) }
+                    
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Groq API Key",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "Required for Groq online AI models (llama-3.1-70b-versatile)",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        
+                        OutlinedTextField(
+                            value = groqApiKeyText,
+                            onValueChange = { 
+                                groqApiKeyText = it
+                                viewModel.updateGroqApiKey(it)
+                            },
+                            label = { Text("API Key") },
+                            placeholder = { Text("gsk_...") },
+                            modifier = Modifier.fillMaxWidth(),
+                            visualTransformation = if (showApiKey) androidx.compose.ui.text.input.VisualTransformation.None 
+                                                 else androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                            trailingIcon = {
+                                Row {
+                                    IconButton(
+                                        onClick = { showApiKey = !showApiKey }
+                                    ) {
+                                        Text(
+                                            text = if (showApiKey) "Hide" else "Show",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    if (groqApiKeyText.isNotBlank()) {
+                                        IconButton(
+                                            onClick = { 
+                                                groqApiKeyText = ""
+                                                viewModel.updateGroqApiKey("")
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Clear,
+                                                contentDescription = "Clear API Key"
+                                            )
+                                        }
+                                    }
+                                }
+                            },
+                            supportingText = {
+                                if (groqApiKeyText.isBlank()) {
+                                    Text(
+                                        text = "Get your free API key from console.groq.com/keys",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                } else {
+                                    Text(
+                                        text = "✓ API key configured",
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                         )
                     }
                 }

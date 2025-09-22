@@ -2,22 +2,28 @@ package com.exodus.data.repository
 
 import android.content.Context
 import com.exodus.data.api.OllamaApiClient
+import com.exodus.data.api.GroqApiService
 import com.exodus.data.api.ApiResult
 import com.exodus.data.model.Attachment
 import com.exodus.data.model.AttachmentType
 import com.exodus.data.model.ChatMessage
 import com.exodus.data.model.ChatRequest
+import com.exodus.data.model.LLMProvider
 import com.exodus.data.database.MessageDao
 import com.exodus.data.model.AIModel
 import com.exodus.data.model.Message
 import com.exodus.utils.AppLogger
 import com.exodus.utils.DocumentProcessor
 import com.exodus.utils.ImageEncoder
+import com.exodus.utils.NetworkUtils
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.util.Date
 
 class ChatRepository(
     private val context: Context,
     private val ollamaApiClient: OllamaApiClient,
+    private val groqApiService: GroqApiService,
     private val messageDao: MessageDao
 ) {
 
@@ -87,11 +93,52 @@ class ChatRepository(
         }
     }
 
+    /**
+     * Determines the best provider to use based on user preference and network availability
+     */
+    private suspend fun selectProvider(
+        userPreference: LLMProvider,
+        groqApiKey: String?
+    ): LLMProvider {
+        return when (userPreference) {
+            LLMProvider.OLLAMA_LOCAL -> {
+                AppLogger.i("ChatRepo", "🏠 Using Ollama (Local) as requested")
+                LLMProvider.OLLAMA_LOCAL
+            }
+            LLMProvider.GROQ_ONLINE -> {
+                if (groqApiKey.isNullOrBlank()) {
+                    AppLogger.w("ChatRepo", "🔑 Groq API key not configured, falling back to Ollama")
+                    LLMProvider.OLLAMA_LOCAL
+                } else if (!NetworkUtils.isNetworkAvailable(context)) {
+                    AppLogger.w("ChatRepo", "📶 No internet connection, falling back to Ollama")
+                    LLMProvider.OLLAMA_LOCAL
+                } else {
+                    AppLogger.i("ChatRepo", "🌐 Using Groq (Online) as requested")
+                    LLMProvider.GROQ_ONLINE
+                }
+            }
+            LLMProvider.AUTO -> {
+                if (groqApiKey.isNullOrBlank()) {
+                    AppLogger.i("ChatRepo", "🤖 Auto mode: No Groq API key, using Ollama")
+                    LLMProvider.OLLAMA_LOCAL
+                } else if (!NetworkUtils.isNetworkAvailable(context)) {
+                    AppLogger.i("ChatRepo", "🤖 Auto mode: No internet, using Ollama")
+                    LLMProvider.OLLAMA_LOCAL
+                } else {
+                    AppLogger.i("ChatRepo", "🤖 Auto mode: Internet available, using Groq")
+                    LLMProvider.GROQ_ONLINE
+                }
+            }
+        }
+    }
+
     suspend fun sendMessage(
         message: String,
         modelName: String,
         conversationHistory: List<Message>,
-        attachments: List<Attachment> = emptyList()
+        attachments: List<Attachment> = emptyList(),
+        providerPreference: LLMProvider = LLMProvider.AUTO,
+        groqApiKey: String? = null
     ): String {
         return try {
             AppLogger.i("ChatRepo", "💬 Sending message to model: $modelName")
@@ -99,11 +146,15 @@ class ChatRepository(
             AppLogger.d("ChatRepo", "Conversation history: ${conversationHistory.size} messages")
             AppLogger.d("ChatRepo", "Attachments: ${attachments.size} files")
             
-            // Check for vision model compatibility when images are attached
+            // Determine which provider to use
+            val selectedProvider = selectProvider(providerPreference, groqApiKey)
+            AppLogger.i("ChatRepo", "🎯 Selected provider: ${selectedProvider.displayName}")
+            
+            // Check for vision model compatibility when images are attached (Ollama only)
             val hasImages = attachments.any { it.type == AttachmentType.IMAGE }
             var actualModelName = modelName
             
-            if (hasImages && !isVisionModel(modelName)) {
+            if (hasImages && selectedProvider == LLMProvider.OLLAMA_LOCAL && !isVisionModel(modelName)) {
                 AppLogger.w("ChatRepo", "⚠️ Image attachments sent to non-vision model: $modelName")
                 AppLogger.i("ChatRepo", "🔄 Automatically searching for vision model...")
                 
@@ -125,6 +176,12 @@ class ChatRepository(
                             "2. Resend your image - ExodusAI will auto-switch to the vision model!\n\n" +
                             "Your text message: \"$message\""
                 }
+            }
+            
+            // For Groq, warn about images but continue (Groq has vision models)
+            if (hasImages && selectedProvider == LLMProvider.GROQ_ONLINE) {
+                AppLogger.i("ChatRepo", "🖼️ Images detected with Groq - using vision-capable model")
+                // Groq's llama-3.1-70b-versatile can handle images
             }
             
             // Create user message
@@ -170,78 +227,47 @@ class ChatRepository(
             )
             chatMessages.add(currentMessage)
 
-            // Send to Ollama
-            val request = ChatRequest(
-                model = actualModelName,
-                messages = chatMessages
-            )
-            
-            AppLogger.network("ChatRepo", "🚀 Calling Ollama API with ${chatMessages.size} messages")
-            AppLogger.i("ChatRepo", "🎯 Using model: $actualModelName ${if (actualModelName != modelName) "(auto-switched from $modelName)" else ""}")
-
-            when (val response = ollamaApiClient.sendMessage(request)) {
-                is ApiResult.Success -> {
-                    val aiResponse = response.data.message.content
-                    AppLogger.i("ChatRepo", "✅ AI response received: ${aiResponse.length} chars")
-                    AppLogger.d("ChatRepo", "Response preview: ${aiResponse.take(100)}...")
-                    
-                    // Add model switch notification if auto-switched
-                    val finalResponse = if (actualModelName != modelName) {
-                        "🔄 **Auto-switched to vision model: $actualModelName**\n\n$aiResponse"
-                    } else {
-                        aiResponse
-                    }
-                    
-                    // In real app, save to database here
-                    // messageDao.insertMessage(userMessage)
-                    // messageDao.insertMessage(aiMessage)
-                    
-                    finalResponse
+            // Call the appropriate API based on selected provider
+            val aiResponse = when (selectedProvider) {
+                LLMProvider.OLLAMA_LOCAL -> {
+                    AppLogger.i("ChatRepo", "🏠 Calling Ollama API")
+                    callOllamaApi(actualModelName, chatMessages)
                 }
-                is ApiResult.Error -> {
-                    AppLogger.e("ChatRepo", "❌ API error: ${response.message}")
-                    AppLogger.w("ChatRepo", "Falling back to demo mode")
-                    
-                    // Provide a helpful fallback response when Ollama is not available
-                    val attachmentText = if (attachments.isNotEmpty()) {
-                        "\n\n📎 **Attachments received (${attachments.size}):**\n" +
-                        attachments.joinToString("\n") { "• ${it.fileName} (${it.type})" }
-                    } else ""
-                    
-                    when {
-                        response.message.contains("model") && response.message.contains("not found") -> {
-                            "🤖 **Model Not Found**\n\n" +
-                            "The model '$modelName' is not available on your Ollama server.\n\n" +
-                            "**Available model on your server:**\n" +
-                            "• llama3.2:latest (recommended - most recent knowledge)\n\n" +
-                            "**To install more models:**\n" +
-                            "1. `ollama pull llama3.1` - Install Llama 3.1\n" +
-                            "2. `ollama pull codellama` - Install CodeLlama for coding\n" +
-                            "3. `ollama list` - See all installed models\n\n" +
-                            "Please select Llama 3.2 from the dropdown above.$attachmentText"
-                        }
-                        response.message.contains("Failed to connect") || 
-                        response.message.contains("Connection refused") || 
-                        response.message.contains("Unable to resolve host") ||
-                        response.message.contains("Network connection failed") -> {
-                            "🤖 **Demo Mode Active**\n\n" +
-                            "Hi! I received your message: \"$message\"$attachmentText\n\n" +
-                            "I'm currently running in demo mode because Ollama server is not available. " +
-                            "To get real AI responses:\n\n" +
-                            "1. Install Ollama from https://ollama.ai\n" +
-                            "2. Run: `ollama pull codellama:latest`\n" +
-                            "3. Start server: `ollama serve`\n\n" +
-                            "For now, I can only echo your messages in demo mode! CodeLlama is perfect for coding tasks! 💻"
-                        }
-                        else -> {
-                            "🤖 **Demo Response**\n\n" +
-                            "Your message: \"$message\"$attachmentText\n\n" +
-                            "API Error: ${response.message}\n\n" +
-                            "To enable real AI responses, please install Ollama server."
-                        }
-                    }
+                LLMProvider.GROQ_ONLINE -> {
+                    AppLogger.i("ChatRepo", "🌐 Calling Groq API")
+                    callGroqApi(chatMessages, groqApiKey!!)
+                }
+                LLMProvider.AUTO -> {
+                    // This should not happen as selectProvider resolves AUTO to a specific provider
+                    AppLogger.w("ChatRepo", "⚠️ AUTO provider not resolved, falling back to Ollama")
+                    callOllamaApi(actualModelName, chatMessages)
                 }
             }
+            
+            // Add provider notification to response
+            val providerNotification = when (selectedProvider) {
+                LLMProvider.GROQ_ONLINE -> "🌐 **Groq (Online)**"
+                LLMProvider.OLLAMA_LOCAL -> "🏠 **Ollama (Local)**"
+                LLMProvider.AUTO -> ""
+            }
+            
+            val modelSwitchNotification = if (actualModelName != modelName) {
+                " • Auto-switched to vision model: $actualModelName"
+            } else {
+                ""
+            }
+            
+            val finalResponse = if (providerNotification.isNotEmpty() || modelSwitchNotification.isNotEmpty()) {
+                "$providerNotification$modelSwitchNotification\n\n$aiResponse"
+            } else {
+                aiResponse
+            }
+            
+            // In real app, save to database here
+            // messageDao.insertMessage(userMessage)
+            // messageDao.insertMessage(aiMessage)
+            
+            finalResponse
         } catch (e: Exception) {
             val attachmentText = if (attachments.isNotEmpty()) {
                 "\n\n📎 **Attachments received (${attachments.size}):**\n" +
@@ -251,13 +277,134 @@ class ChatRepository(
             // Provide demo response for testing
             "🤖 **Demo Mode - Exception Caught**\n\n" +
             "Your message: \"$message\"$attachmentText\n\n" +
-            "This is a test response since Ollama server is not running.\n\n" +
+            "This is a test response since the AI service is not available.\n\n" +
             "Error details: ${e.javaClass.simpleName} - ${e.message ?: "Unknown error"}\n\n" +
             "**To get real AI responses:**\n" +
             "1. Install Ollama from https://ollama.ai\n" +
             "2. Run: `ollama pull codellama:13b-instruct`\n" +
             "3. Start: `ollama serve`\n\n" +
-            "Your CodeLlama 13B model will provide excellent coding assistance! 🚀"
+            "Your AI assistant will provide excellent help! 🚀"
+        }
+    }
+    
+    /**
+     * Helper method to call Ollama API
+     */
+    private suspend fun callOllamaApi(modelName: String, chatMessages: List<ChatMessage>): String {
+        val request = ChatRequest(
+            model = modelName,
+            messages = chatMessages
+        )
+        
+        AppLogger.network("ChatRepo", "🚀 Calling Ollama API with ${chatMessages.size} messages")
+        AppLogger.i("ChatRepo", "🎯 Using model: $modelName")
+
+        return when (val response = ollamaApiClient.sendMessage(request)) {
+            is ApiResult.Success -> {
+                val aiResponse = response.data.message.content
+                AppLogger.i("ChatRepo", "✅ Ollama response received: ${aiResponse.length} chars")
+                AppLogger.d("ChatRepo", "Response preview: ${aiResponse.take(100)}...")
+                aiResponse
+            }
+            is ApiResult.Error -> {
+                AppLogger.e("ChatRepo", "❌ Ollama API error: ${response.message}")
+                handleOllamaError(response.message)
+            }
+        }
+    }
+    
+    /**
+     * Helper method to call Groq API
+     */
+    private suspend fun callGroqApi(chatMessages: List<ChatMessage>, apiKey: String): String {
+        AppLogger.network("ChatRepo", "🚀 Calling Groq API with ${chatMessages.size} messages")
+        
+        return try {
+            var response = ""
+            groqApiService.streamChat(chatMessages, apiKey = apiKey).collect { chunk ->
+                response = chunk
+            }
+            
+            AppLogger.i("ChatRepo", "✅ Groq response received: ${response.length} chars")
+            AppLogger.d("ChatRepo", "Response preview: ${response.take(100)}...")
+            response
+        } catch (e: Exception) {
+            AppLogger.e("ChatRepo", "❌ Groq API error: ${e.message}")
+            handleGroqError(e.message ?: "Unknown error")
+        }
+    }
+    
+    /**
+     * Handle Ollama API errors with helpful messages
+     */
+    private fun handleOllamaError(errorMessage: String): String {
+        return when {
+            errorMessage.contains("model") && errorMessage.contains("not found") -> {
+                "🤖 **Model Not Found**\n\n" +
+                "The requested model is not available on your Ollama server.\n\n" +
+                "**To install models:**\n" +
+                "1. `ollama pull llama3.2:latest` - Latest Llama model\n" +
+                "2. `ollama pull codellama` - For coding tasks\n" +
+                "3. `ollama list` - See all installed models\n\n" +
+                "Please install a model and try again."
+            }
+            errorMessage.contains("Failed to connect") || 
+            errorMessage.contains("Connection refused") || 
+            errorMessage.contains("Unable to resolve host") ||
+            errorMessage.contains("Network connection failed") -> {
+                "🤖 **Ollama Server Not Available**\n\n" +
+                "Cannot connect to your local Ollama server.\n\n" +
+                "**To fix this:**\n" +
+                "1. Install Ollama from https://ollama.ai\n" +
+                "2. Start server: `ollama serve`\n" +
+                "3. Pull a model: `ollama pull llama3.2:latest`\n\n" +
+                "Make sure Ollama is running on localhost:11434"
+            }
+            else -> {
+                "🤖 **Ollama Error**\n\n" +
+                "There was an issue with the Ollama server.\n\n" +
+                "Error: $errorMessage\n\n" +
+                "Please check your Ollama installation and try again."
+            }
+        }
+    }
+    
+    /**
+     * Handle Groq API errors with helpful messages
+     */
+    private fun handleGroqError(errorMessage: String): String {
+        return when {
+            errorMessage.contains("401") || errorMessage.contains("unauthorized") -> {
+                "🌐 **Groq API Key Invalid**\n\n" +
+                "Your Groq API key appears to be invalid or expired.\n\n" +
+                "**To fix this:**\n" +
+                "1. Go to https://console.groq.com/keys\n" +
+                "2. Generate a new API key\n" +
+                "3. Update your API key in Settings\n\n" +
+                "Falling back to local Ollama if available."
+            }
+            errorMessage.contains("429") || errorMessage.contains("rate limit") -> {
+                "🌐 **Groq Rate Limit Reached**\n\n" +
+                "You've exceeded the Groq API rate limit.\n\n" +
+                "**Options:**\n" +
+                "1. Wait a few minutes and try again\n" +
+                "2. Switch to 'Offline (Ollama)' mode\n" +
+                "3. Use 'Auto' mode to fallback automatically\n\n" +
+                "Free tier: 6,000 requests/minute"
+            }
+            errorMessage.contains("No network") || errorMessage.contains("network") -> {
+                "🌐 **No Internet Connection**\n\n" +
+                "Cannot reach Groq API - no internet connection.\n\n" +
+                "**Automatic fallback:**\n" +
+                "Switching to local Ollama for offline operation.\n\n" +
+                "Enable 'Auto' mode for seamless switching."
+            }
+            else -> {
+                "🌐 **Groq API Error**\n\n" +
+                "There was an issue with the Groq API.\n\n" +
+                "Error: $errorMessage\n\n" +
+                "Try switching to 'Offline (Ollama)' mode or check your internet connection."
+            }
         }
     }
 

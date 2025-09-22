@@ -8,16 +8,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.exodus.data.api.GroqApiService
 import com.exodus.data.api.OllamaApiClient
 import com.exodus.data.database.MessageDaoImpl
 import com.exodus.data.repository.ChatRepository
 import com.exodus.data.repository.UpdateRepository
+import com.exodus.data.repository.UserPreferencesRepository
 import com.exodus.ui.chat.ChatScreen
 import com.exodus.ui.chat.ChatViewModel
 import com.exodus.ui.screens.SettingsScreen
 import com.exodus.ui.screens.DebugLogsScreen
 import com.exodus.ui.theme.ExodusTheme
 import com.exodus.ui.viewmodel.SettingsViewModel
+import okhttp3.OkHttpClient
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,12 +28,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         
         // Manual dependency injection since we removed Hilt for VS Code compatibility
+        val okHttpClient = OkHttpClient()
         val ollamaApiClient = OllamaApiClient()
+        val groqApiService = GroqApiService(okHttpClient)
         val messageDao = MessageDaoImpl() // Placeholder implementation
-        val chatRepository = ChatRepository(this, ollamaApiClient, messageDao)
-        val chatViewModel = ChatViewModel(chatRepository)
+        val userPreferencesRepository = UserPreferencesRepository(this)
+        val chatRepository = ChatRepository(this, ollamaApiClient, groqApiService, messageDao)
+        val chatViewModel = ChatViewModel(chatRepository, userPreferencesRepository)
         val updateRepository = UpdateRepository(this)
-        val settingsViewModel = SettingsViewModel(updateRepository)
+        val settingsViewModel = SettingsViewModel(updateRepository, userPreferencesRepository)
         
         setContent {
             var currentScreen by remember { mutableStateOf("chat") }
