@@ -2,13 +2,18 @@ package com.exodus.data.api
 
 import com.exodus.data.model.ChatMessage
 import com.exodus.utils.AppLogger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class GroqApiService(private val client: OkHttpClient) {
     
@@ -46,7 +51,25 @@ class GroqApiService(private val client: OkHttpClient) {
                 .post(requestBody.toRequestBody(mediaType))
                 .build()
             
-            client.newCall(request).execute().use { response ->
+            // Use suspendCancellableCoroutine to make async network call
+            val response = withContext(Dispatchers.IO) {
+                suspendCancellableCoroutine { continuation ->
+                    val call = client.newCall(request)
+                    continuation.invokeOnCancellation { call.cancel() }
+                    
+                    call.enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            continuation.resumeWithException(e)
+                        }
+                        
+                        override fun onResponse(call: Call, response: Response) {
+                            continuation.resume(response)
+                        }
+                    })
+                }
+            }
+            
+            response.use {
                 if (!response.isSuccessful) {
                     val errorBody = response.body?.string() ?: "Unknown error"
                     AppLogger.e("GroqAPI", "❌ HTTP ${response.code}: $errorBody")
