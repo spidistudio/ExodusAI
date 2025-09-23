@@ -14,8 +14,8 @@ android {
         applicationId "com.exodus"
         minSdk 21
         targetSdk 36
-        versionCode 126
-        versionName "1.26"
+        versionCode 128
+        versionName "1.28"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

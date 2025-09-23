@@ -18,8 +18,8 @@ import javax.inject.Inject
 
 data class SettingsUiState(
     val isDarkMode: Boolean = true,
-    val appVersion: String = "1.27",
-    val buildNumber: String = "127",
+    val appVersion: String = "1.28",
+    val buildNumber: String = "128",
     val groqApiKey: String? = null,
     val updateStatus: UpdateStatus = UpdateStatus.NO_UPDATE,
     val updateInfo: UpdateInfo? = null,
@@ -27,8 +27,8 @@ data class SettingsUiState(
 )
 
 private data class LocalSettingsState(
-    val appVersion: String = "1.27",
-    val buildNumber: String = "127",
+    val appVersion: String = "1.28",
+    val buildNumber: String = "128",
     val updateStatus: UpdateStatus = UpdateStatus.NO_UPDATE,
     val updateInfo: UpdateInfo? = null,
     val lastUpdateCheck: String = "Never"

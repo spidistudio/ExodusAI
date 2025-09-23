@@ -23,7 +23,7 @@
 [![Android 16 QPR2](https://img.shields.io/badge/Android%2016%20QPR2-Compatible-red.svg?style=flat)](https://developer.android.com/about/versions)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9+-blue.svg?style=flat)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.27-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
+[![Version](https://img.shields.io/badge/Version-1.28-red.svg)](https://github.com/spidistudio/ExodusAI/releases)
 
 ExodusAI is a cutting-edge Android application that allows you to chat with various AI models locally offline. The app provides a modern, customizable interface for interacting with local AI models like Ollama, now with full **Android 16 QPR2 developer preview support** - the most bleeding-edge Android compatibility available.
 
@@ -31,7 +31,7 @@ ExodusAI is a cutting-edge Android application that allows you to chat with vari
 
 *Coming soon - Screenshots will be added once the app is deployed*
 
-## 🔥 Latest Features (v1.27)
+## 🔥 Latest Features (v1.28)
 
 ### � Multi-Provider AI Architecture
 - **Smart Provider Selection** - Choose between Auto, Online (Groq), and Offline (Ollama) modes
@@ -347,13 +347,13 @@ ExodusAI supports multiple AI providers. You can use either or both:
 
 ### Option 1: Download APK (Recommended)
 
-**Latest Version (v1.27):**
-1. **Download APK v1.27** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
+**Latest Version (v1.28):**
+1. **Download APK v1.28** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
 2. **Enable Installation Sources** if needed: Settings → Security → "Unknown Sources"
 3. **Install APK** through file manager or ADB
 
 **For Android 16 QPR2 Users:**
-1. **Download APK v1.27** (fully compatible with QPR2)
+1. **Download APK v1.28** (fully compatible with QPR2)
 2. **Enable Developer Options**: Settings → About Phone → Tap "Build Number" 7 times
 3. **Enable Installation Sources**: Settings → Developer Options → "Install unknown apps"
 4. **Install via ADB** (most reliable for QPR2):
@@ -362,7 +362,7 @@ ExodusAI supports multiple AI providers. You can use either or both:
    ```
 
 **For Standard Android Devices:**
-1. **Download v1.27** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
+1. **Download v1.28** from [Releases](https://github.com/spidistudio/ExodusAI/releases)
 2. **Enable Unknown Sources** in Android settings if needed
 3. **Install APK** normally through file manager
 
@@ -458,7 +458,7 @@ If using a real Android device with Ollama on your computer:
 
 ## 🚀 Usage
 
-### Quick Start (v1.27)
+### Quick Start (v1.28)
 
 1. **Launch ExodusAI** on your Android device
 
@@ -484,7 +484,7 @@ If using a real Android device with Ollama on your computer:
    - Real-time status indicators show connection and API key status
    - Auto mode seamlessly handles network changes
 
-6. **Settings & Customization** (enhanced in v1.27):
+6. **Settings & Customization** (enhanced in v1.28):
    - **Theme Switching**: Toggle between Dark/Light modes
    - **API Configuration**: Secure Groq API key management
    - **Debug Logs**: Advanced troubleshooting for network issues
@@ -804,4 +804,4 @@ MIT License - You are free to:
 - Some features may behave differently on experimental builds
 - Report QPR2-specific issues on GitHub for rapid fixes
 
-**🚀 Ready for multi-provider AI with intelligent switching? [Download v1.27](https://github.com/spidistudio/ExodusAI/releases) and experience the future of mobile AI chat!**
+**🚀 Ready for multi-provider AI with intelligent switching? [Download v1.28](https://github.com/spidistudio/ExodusAI/releases) and experience the future of mobile AI chat!**
