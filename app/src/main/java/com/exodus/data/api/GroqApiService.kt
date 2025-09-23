@@ -22,14 +22,15 @@ class GroqApiService(private val client: OkHttpClient) {
     companion object {
         private const val BASE_URL = "https://api.groq.com/openai/v1"
         private const val CHAT_ENDPOINT = "$BASE_URL/chat/completions"
-        private const val DEFAULT_MODEL = "llama-3.1-70b-versatile" // Fast and capable model
+        private const val DEFAULT_MODEL = "llama-3.1-8b-instant" // Fast and currently supported model
         
-        // Available Groq models
+        // Available Groq models (updated for current support)
         val AVAILABLE_MODELS = listOf(
-            "llama-3.1-70b-versatile",
-            "llama-3.1-8b-instant", 
-            "mixtral-8x7b-32768",
-            "gemma-7b-it"
+            "llama-3.1-8b-instant",     // Fast, current
+            "llama-3.2-1b-preview",     // Lightweight
+            "llama-3.2-3b-preview",     // Balanced
+            "mixtral-8x7b-32768",       // Large context
+            "gemma2-9b-it"              // Google's model
         )
     }
     

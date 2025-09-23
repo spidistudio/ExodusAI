@@ -228,24 +228,25 @@ class ChatRepository(
             chatMessages.add(currentMessage)
 
             // Call the appropriate API based on selected provider
-            val aiResponse = when (selectedProvider) {
+            val (aiResponse, actualProviderUsed) = when (selectedProvider) {
                 LLMProvider.OLLAMA_LOCAL -> {
                     AppLogger.i("ChatRepo", "🏠 Calling Ollama API")
-                    callOllamaApi(actualModelName, chatMessages)
+                    val response = callOllamaApiWithErrorHandling(actualModelName, chatMessages)
+                    Pair(response, LLMProvider.OLLAMA_LOCAL)
                 }
                 LLMProvider.GROQ_ONLINE -> {
                     AppLogger.i("ChatRepo", "🌐 Calling Groq API")
-                    callGroqApi(chatMessages, groqApiKey!!)
+                    val response = callGroqApi(chatMessages, groqApiKey!!)
+                    Pair(response, LLMProvider.GROQ_ONLINE)
                 }
                 LLMProvider.AUTO -> {
-                    // This should not happen as selectProvider resolves AUTO to a specific provider
-                    AppLogger.w("ChatRepo", "⚠️ AUTO provider not resolved, falling back to Ollama")
-                    callOllamaApi(actualModelName, chatMessages)
+                    AppLogger.i("ChatRepo", "🤖 Auto mode: Attempting Groq with Ollama fallback")
+                    callGroqWithFallback(actualModelName, chatMessages, groqApiKey)
                 }
             }
             
             // Add provider notification to response
-            val providerNotification = when (selectedProvider) {
+            val providerNotification = when (actualProviderUsed) {
                 LLMProvider.GROQ_ONLINE -> "🌐 **Groq (Online)**"
                 LLMProvider.OLLAMA_LOCAL -> "🏠 **Ollama (Local)**"
                 LLMProvider.AUTO -> ""
@@ -308,8 +309,20 @@ class ChatRepository(
             }
             is ApiResult.Error -> {
                 AppLogger.e("ChatRepo", "❌ Ollama API error: ${response.message}")
-                handleOllamaError(response.message)
+                // For fallback scenarios, throw exception instead of returning error message
+                throw Exception("Ollama API error: ${response.message}")
             }
+        }
+    }
+    
+    /**
+     * Helper method to call Ollama API with error message handling (for direct Ollama calls)
+     */
+    private suspend fun callOllamaApiWithErrorHandling(modelName: String, chatMessages: List<ChatMessage>): String {
+        return try {
+            callOllamaApi(modelName, chatMessages)
+        } catch (e: Exception) {
+            handleOllamaError(e.message ?: "Unknown error")
         }
     }
     
@@ -331,6 +344,66 @@ class ChatRepository(
         } catch (e: Exception) {
             AppLogger.e("ChatRepo", "❌ Groq API error: ${e.message}")
             handleGroqError(e.message ?: "Unknown error")
+        }
+    }
+    
+    /**
+     * Call Groq API with automatic fallback to Ollama in Auto mode
+     */
+    private suspend fun callGroqWithFallback(
+        ollamaModelName: String,
+        chatMessages: List<ChatMessage>,
+        groqApiKey: String?
+    ): Pair<String, LLMProvider> {
+        // First, try Groq if API key is available
+        if (groqApiKey != null) {
+            try {
+                AppLogger.i("ChatRepo", "🌐 Auto mode: Trying Groq API first")
+                var response = ""
+                groqApiService.streamChat(chatMessages, apiKey = groqApiKey).collect { chunk ->
+                    response = chunk
+                }
+                
+                AppLogger.i("ChatRepo", "✅ Groq success in Auto mode: ${response.length} chars")
+                return Pair(response, LLMProvider.GROQ_ONLINE)
+                
+            } catch (e: Exception) {
+                AppLogger.w("ChatRepo", "⚠️ Groq failed in Auto mode: ${e.message}")
+                AppLogger.i("ChatRepo", "🔄 Auto mode: Falling back to Ollama")
+                
+                // Continue to Ollama fallback below
+            }
+        } else {
+            AppLogger.i("ChatRepo", "🔑 Auto mode: No Groq API key, using Ollama")
+        }
+        
+        // Fallback to Ollama
+        try {
+            val response = callOllamaApi(ollamaModelName, chatMessages)
+            val fallbackNotification = if (groqApiKey != null) {
+                "🔄 **Auto Fallback**: Groq failed, switched to Ollama\n\n"
+            } else {
+                ""
+            }
+            return Pair("$fallbackNotification$response", LLMProvider.OLLAMA_LOCAL)
+            
+        } catch (e: Exception) {
+            AppLogger.e("ChatRepo", "❌ Both providers failed in Auto mode")
+            val errorResponse = buildString {
+                append("🤖 **Auto Mode Error**\n\n")
+                append("Both AI providers are currently unavailable:\n\n")
+                if (groqApiKey != null) {
+                    append("• **Groq (Online)**: Failed to connect\n")
+                } else {
+                    append("• **Groq (Online)**: No API key configured\n")
+                }
+                append("• **Ollama (Local)**: ${e.message}\n\n")
+                append("**Troubleshooting:**\n")
+                append("1. Check your internet connection for Groq\n")
+                append("2. Ensure Ollama is running locally\n")
+                append("3. Try switching providers manually")
+            }
+            return Pair(errorResponse, LLMProvider.AUTO)
         }
     }
     
