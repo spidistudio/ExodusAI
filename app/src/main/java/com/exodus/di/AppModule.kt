@@ -34,7 +34,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideOllamaApiClient(): OllamaApiClient {
-        return OllamaApiClient("http://192.168.0.115:11434")
+        return OllamaApiClient("http://192.168.0.11:11434")
     }
 
     @Provides
