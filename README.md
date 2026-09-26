@@ -335,7 +335,7 @@ ExodusAI supports multiple AI providers. You can use either or both:
 
 3. **Configure Network Access**:
    - Default configuration: `http://192.168.0.115:11434`
-   - For emulator: Use `http://10.0.2.2:11434`
+   - For emulator: Use `http://192.168.0.11:11434`
    - For real device: Use your computer's IP address
 
 ### Auto Mode (Recommended)

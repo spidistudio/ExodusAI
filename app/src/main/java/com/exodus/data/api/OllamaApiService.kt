@@ -20,10 +20,11 @@ sealed class ApiResult<out T> {
 }
 
 class OllamaApiService(private val baseUrl: String = "http://192.168.0.11:11434") {
+    private val normalizedBaseUrl = baseUrl.trimEnd('/')
     
     suspend fun sendMessage(request: ChatRequest): ApiResult<ChatResponse> = withContext(Dispatchers.IO) {
         return@withContext try {
-            val url = URL("$baseUrl/api/chat")
+            val url = URL("$normalizedBaseUrl/api/chat")
             val connection = url.openConnection() as HttpURLConnection
             
             connection.requestMethod = "POST"
@@ -37,7 +38,7 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.11:11434"
             
             // Enhanced logging for debugging
             AppLogger.network("OllamaAPI", "=== NETWORK CONNECTION ATTEMPT ===")
-            AppLogger.network("OllamaAPI", "Base URL: $baseUrl")
+            AppLogger.network("OllamaAPI", "Base URL: $normalizedBaseUrl")
             AppLogger.network("OllamaAPI", "Full URL: $url")
             AppLogger.network("OllamaAPI", "Model: ${request.model}")
             AppLogger.network("OllamaAPI", "Messages count: ${request.messages.size}")
@@ -87,7 +88,7 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.11:11434"
             AppLogger.e("OllamaAPI", "=== CONNECTION FAILED ===", e)
             AppLogger.e("OllamaAPI", "Exception type: ${e.javaClass.simpleName}")
             AppLogger.e("OllamaAPI", "Exception message: ${e.message ?: "No message"}")
-            AppLogger.e("OllamaAPI", "Base URL was: $baseUrl")
+            AppLogger.e("OllamaAPI", "Base URL was: $normalizedBaseUrl")
             AppLogger.e("OllamaAPI", "Thread: ${Thread.currentThread().name}")
             AppLogger.e("OllamaAPI", "Stack trace: ${e.stackTraceToString().take(500)}...")
             ApiResult.Error(errorMsg)
@@ -97,7 +98,7 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.11:11434"
     suspend fun getAvailableModels(): ApiResult<ModelsResponse> = withContext(Dispatchers.IO) {
         return@withContext try {
             AppLogger.network("OllamaAPI", "🔍 Fetching available models from server")
-            val url = URL("$baseUrl/api/tags")
+            val url = URL("$normalizedBaseUrl/api/tags")
             val connection = url.openConnection() as HttpURLConnection
             
             connection.requestMethod = "GET"
@@ -134,7 +135,7 @@ class OllamaApiService(private val baseUrl: String = "http://192.168.0.11:11434"
     
     fun downloadModel(modelName: String): ApiResult<String> {
         return try {
-            val url = URL("$baseUrl/api/pull")
+            val url = URL("$normalizedBaseUrl/api/pull")
             val connection = url.openConnection() as HttpURLConnection
             
             connection.requestMethod = "POST"
